@@ -1,0 +1,17 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:7.0.4")  // Adjust based on the latest version
+    }
+}
+
+android {
+    compileSdkVersion 33  // Make sure this matches your Android SDK
+    defaultConfig {
+        minSdkVersion 21  // Adjust to your target minimum SDK
+        targetSdkVersion 33  // Adjust to your target SDK
+    }
+}
