@@ -22,7 +22,7 @@ and manage co-curricular events. It provides a seamless interface to monitor stu
 
 ## Demo
 
-[Watch the demo video here]  https://rb.gy/ab5rpg   to see how the app functions and its features.
+[Watch the demo video here]  (https://shorturl.at/1VuyN))  to see how the app functions and its features.
 
 ## Setup
 
