@@ -4,6 +4,7 @@ const path = require('path');
 const addPost = async (req, res, db) => {
   const { description } = req.body;
   const image = req.file; 
+  console.log(image);
 
   if (!image || !description) {
     return res.status(400).send({ success: false, message: 'Missing fields' });

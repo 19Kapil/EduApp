@@ -13,6 +13,7 @@ export type RootStackParamList = {
   AddPostScreen: undefined;
   AddUser: undefined;
   CodeScreen: undefined;
+  ClassRoutineScreen: undefined;
   YearlyPlanScreen: undefined;
   HomeScreen: { userid: string, childclass: number };
   TeacherHomeScreen: { teacherClass: string };

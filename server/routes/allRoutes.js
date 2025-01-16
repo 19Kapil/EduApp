@@ -8,6 +8,7 @@ const { addChild } = require("../config/addChild");
 const { getChildRegistrationNumber, getChildDetails } = require("../config/getChildInfo");
 const {updateAttendance, getAttendance} = require("../config/Attendance");
 const {updateActivity, getActivity} = require("../config/Activity");
+const {addRoutine, loadRoutine} = require("../config/addRoutine");
 const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() });
 const db = require("../config/db"); 
@@ -38,5 +39,9 @@ router.get("/api/attendance/:registration_number", (req, res) => getAttendance(r
 
 router.get("/api/activities/:teacherClass", (req, res) => getActivity(req, res, db));
 router.put("/api/activities/:id", (req, res) => updateActivity(req, res, db));
+
+router.put("/api/addRoutine", upload.single("image"), (req, res) => addRoutine(req, res, db));
+router.get("/api/routine", (req, res) => loadRoutine(req, res, db));
+
 
 module.exports = router;

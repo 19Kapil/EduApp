@@ -49,8 +49,8 @@ const CCAScreen: React.FC<Props> = ({ navigation, route }) => {
     } catch (error) {
       setIsLoading(false);
       console.error(error);
-      if (error.response) {
-        Alert.alert('Error', `Failed to fetch activities. Status: ${error.response.status}`);
+      if (error) {
+        Alert.alert('Error', `Failed to fetch activities. Status:`);
       } else {
         Alert.alert('Error', 'Failed to fetch activities. Please check your connection or server.');
       }

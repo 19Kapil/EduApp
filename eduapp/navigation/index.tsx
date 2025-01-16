@@ -14,7 +14,7 @@ import TeacherChatScreen from "../screens/TeacherChatScreen";
 import ParentsRoutineScreen from "../screens/ParentsRoutine";
 import StudentListScreen from "../screens/StudentListScreen";
 import ChildProfileScreen from "../screens/ChildProfileScreen";
-import TeacherRoutineScreen from "../screens/TeacherRoutine";
+// import TeacherRoutineScreen from "../screens/ClassRoutineScreen";
 import ChatScreen from "../screens/Chat";
 import YearlyPlanScreen from "../screens/YearlyPlan";
 import TChatScreen from "../screens/TChat";
@@ -30,6 +30,7 @@ import AddUser from "../screens/AddUser";
 import ReportCardScreen from "../screens/ReportCardScreen";
 import AttendanceScreen from "../screens/AttendanceScreen";
 import AttendanceReportScreen from "../screens/AttendanceReportScreen";
+import ClassRoutineScreen from "../screens/ClassRoutineScreen";
 const theme = {
   ...DefaultTheme,
   colors: {
@@ -65,6 +66,7 @@ function RootNavigator() {
       <Stack.Screen name="ChatScreen" component={ChatScreen} />
       <Stack.Screen name="TChatScreen" component={TChatScreen} />
       <Stack.Screen name="StudentsIndiScreen" component={StudentsIndiScreen} />
+      <Stack.Screen name="ClassRoutineScreen" component={ClassRoutineScreen} /> 
       <Stack.Screen name="YearlyPlanScreen" component={YearlyPlanScreen} />
       <Stack.Screen name="TCallScreen" component={TCallScreen} />
       <Stack.Screen name="CourseProgressScreen" component={CourseProgress} />
@@ -74,10 +76,7 @@ function RootNavigator() {
       <Stack.Screen name="ReportCardScreen" component={ReportCardScreen} />
       <Stack.Screen name="AttendanceReportScreen" component={AttendanceReportScreen} />
 
-      <Stack.Screen
-        name="TeacherRoutineScreen"
-        component={TeacherRoutineScreen}
-      />
+    
 
       <Stack.Screen
         name="ChildProfileScreen"

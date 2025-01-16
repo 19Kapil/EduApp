@@ -41,6 +41,7 @@ const TeacherHomeScreen: React.FC<Props> = ({ navigation, route }) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
   const teacherClass = route.params?.teacherClass || 0;
 
+  
   const loadPosts = async () => {
     try {
       setLoading(true);

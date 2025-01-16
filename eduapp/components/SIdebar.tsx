@@ -29,6 +29,7 @@ type SidebarProps = {
 const Sidebar: React.FC<SidebarProps> = ({toggleSidebar,userRole,userid,teacherClass,childclass }) => {
   const navigation = useNavigation();
   const [academiaDropdownOpen, setAcademiaDropdownOpen] = React.useState(false);
+  const[ClassRoutineOpen, setClassRoutineOpen] = React.useState(false);
   const [yearlyPlanOpen, setYearlyPlanOpen] = React.useState(false);
   const [monthlyPlanOpen, setMonthlyPlanOpen] = React.useState(false);
   const [ecaDropdownOpen, setEcaDropdownOpen] = React.useState(false);
@@ -43,6 +44,11 @@ const Sidebar: React.FC<SidebarProps> = ({toggleSidebar,userRole,userid,teacherC
   const toggleAcademiaDropdown = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setAcademiaDropdownOpen(!academiaDropdownOpen);
+  };
+
+  const toggleClassRoutine = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setClassRoutineOpen(!ClassRoutineOpen);
   };
 
   const toggleYearlyPlan = () => {
@@ -68,6 +74,10 @@ const Sidebar: React.FC<SidebarProps> = ({toggleSidebar,userRole,userid,teacherC
   const toggleAddChild = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setAddChildOpen(!addChildOpen);
+  };
+
+  const handleClassRoutinePress = () => {
+    navigation.navigate("ClassRoutineScreen" , {teacherClass, childclass});
   };
 
   const handleYearlyPlanPress = () => {
@@ -140,6 +150,14 @@ const Sidebar: React.FC<SidebarProps> = ({toggleSidebar,userRole,userid,teacherC
           </TouchableOpacity>
           {academiaDropdownOpen && (
             <View style={styles.subMenu}>
+
+
+              <TouchableOpacity
+                style={styles.subMenuItem}
+                onPress={handleClassRoutinePress}
+              >
+                <Text style={styles.subMenuItemText}>Class Routine</Text>
+              </TouchableOpacity>
               <TouchableOpacity
                 style={styles.subMenuItem}
                 onPress={handleYearlyPlanPress}
@@ -224,9 +242,10 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   subMenuItem: {
+
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 1,
+    paddingVertical: 6,
   },
   subMenuItemText: {
     fontSize: 14,
