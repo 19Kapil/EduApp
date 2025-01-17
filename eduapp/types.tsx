@@ -10,10 +10,10 @@ export type RootStackParamList = {
   Welcome: undefined;
   Login: undefined;
   Register: undefined;
-  AddPostScreen: undefined;
-  AddUser: undefined;
+  AddPostScreen: {teacherClass: string};
+  AddUser:{teacherClass: string};
   CodeScreen: undefined;
-  ClassRoutineScreen: undefined;
+  ClassRoutineScreen: { teacherClass: string, childclass: number };
   YearlyPlanScreen: undefined;
   HomeScreen: { userid: string, childclass: number };
   TeacherHomeScreen: { teacherClass: string };
@@ -24,10 +24,9 @@ export type RootStackParamList = {
   StudentListScreen: { teacherClass: string }; 
   ChildProfileScreen: {userid: string};
   ChatScreen: undefined;
-  TeacherRoutineScreen: undefined;
   TChatScreen: undefined;
   StudentsIndiScreen:{ teacherClass: string};
-  CcaScreen: undefined;
+  CcaScreen: {teacherClass: string, childclass: number};
   CallScreen: undefined;
   TCallScreen: undefined;
   ecaScreen: undefined;

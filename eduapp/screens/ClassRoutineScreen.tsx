@@ -6,10 +6,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  Dimensions,
   Alert,
   ActivityIndicator,
-  Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { v4 as uuidv4 } from "uuid";
@@ -31,12 +29,9 @@ const ClassRoutineScreen: React.FC<Props> = ({ navigation, route }) => {
   const [routineUrl, setRoutineUrl] = useState<string | undefined>(undefined);
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [isImageModalVisible, setIsImageModalVisible] = useState<boolean>(false);
-  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
   const handleImageUpload = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
     if (permissionResult.granted === false) {
       Alert.alert("Permission required", "Permission to access camera roll is required!");
       return;
@@ -111,7 +106,6 @@ const ClassRoutineScreen: React.FC<Props> = ({ navigation, route }) => {
     };
 
     fetchRoutine(); // Initial fetch
-
     const interval = setInterval(fetchRoutine, 2000); // Fetch every 2 seconds
 
     return () => clearInterval(interval); // Cleanup on unmount
@@ -122,8 +116,10 @@ const ClassRoutineScreen: React.FC<Props> = ({ navigation, route }) => {
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="chevron-back" size={30} color="black" />
+          
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Class Routine</Text>
+        
       </View>
 
       <View style={styles.imageContainer}>
@@ -139,12 +135,7 @@ const ClassRoutineScreen: React.FC<Props> = ({ navigation, route }) => {
       {teacherClass && (
         <View style={styles.imageUploadContainer}>
           {image ? (
-            <TouchableOpacity
-              onPress={() => {
-                setFullscreenImage(image); // Set the full-screen image
-                setIsImageModalVisible(true); // Open the modal
-              }}
-            >
+            <TouchableOpacity onPress={() => {}}>
               <Image source={{ uri: image }} style={styles.uploadedImage} />
             </TouchableOpacity>
           ) : (
@@ -161,32 +152,6 @@ const ClassRoutineScreen: React.FC<Props> = ({ navigation, route }) => {
           </TouchableOpacity>
         </View>
       )}
-
-      {/* Fullscreen image modal
-      <Modal
-        visible={isImageModalVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => {
-          setIsImageModalVisible(false);
-          setFullscreenImage(null); // Clear the full-screen image
-        }}
-      >
-        <View style={styles.modalContainer}>
-          <TouchableOpacity
-            style={styles.modalClose}
-            onPress={() => {
-              setIsImageModalVisible(false);
-              setFullscreenImage(null); // Clear the full-screen image
-            }}
-          >
-            <Ionicons name="close" size={30} color="white" />
-          </TouchableOpacity>
-          {fullscreenImage && (
-            <Image source={{ uri: fullscreenImage }} style={styles.fullScreenImage} />
-          )}
-        </View>
-      </Modal> */}
     </SafeAreaView>
   );
 };
@@ -266,23 +231,6 @@ const styles = StyleSheet.create({
     color: "black",
     textAlign: "center",
     fontSize: 18,
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  fullScreenImage: {
-    width: "90%",
-    height: "90%",
-    resizeMode: "contain",
-  },
-  modalClose: {
-    position: "absolute",
-    top: 40,
-    right: 20,
-    zIndex: 10,
   },
 });
 

@@ -105,7 +105,7 @@ const Sidebar: React.FC<SidebarProps> = ({toggleSidebar,userRole,userid,teacherC
   };
 
   const handleAddUser = () => {
-    navigation.navigate("AddUser");
+    navigation.navigate("AddUser", {teacherClass} ,);
   };
 
 

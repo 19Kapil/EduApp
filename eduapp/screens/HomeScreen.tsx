@@ -5,11 +5,13 @@ import {
   View,
   Animated,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   StyleSheet,
   Image,
   FlatList,
   TextInput,
   Dimensions,
+  Keyboard,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
@@ -19,7 +21,6 @@ import PBottomNavigator from "../components/PBottomNavigator";
 import Sidebar from "../components/SIdebar";
 import Font from "../constants/Font";
 import Colors from "../constants/Colors";
-
 
 type Props = NativeStackScreenProps<RootStackParamList, "HomeScreen">;
 
@@ -31,12 +32,14 @@ interface Post {
 
 const HomeScreen: React.FC<Props> = ({ navigation, route }) => {
   const { width } = Dimensions.get("window");
-  const { userid , childclass } = route.params;
+  const { userid, childclass } = route.params;
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isSearchOpen, setSearchOpen] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false); // For refresh animation
   const animatedValue = useRef(new Animated.Value(0)).current;
+  const rotationValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.timing(animatedValue, {
@@ -46,13 +49,32 @@ const HomeScreen: React.FC<Props> = ({ navigation, route }) => {
     }).start();
   }, [isSidebarOpen]);
 
+  const startLoadingAnimation = () => {
+    Animated.loop(
+      Animated.timing(rotationValue, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      })
+    ).start();
+  };
+
+  const stopLoadingAnimation = () => {
+    rotationValue.setValue(0); // Reset rotation
+  };
+
   const loadPosts = async () => {
+    setLoading(true);
+    startLoadingAnimation();
     try {
       const response = await axios.get<Post[]>("http://192.168.1.64:5000/api/posts");
       setPosts(response.data);
       setError(null);
     } catch {
       setError("Failed to load posts. Please try again.");
+    } finally {
+      setLoading(false);
+      stopLoadingAnimation();
     }
   };
 
@@ -60,9 +82,18 @@ const HomeScreen: React.FC<Props> = ({ navigation, route }) => {
     loadPosts();
   }, []);
 
+  const handleTouch = () => {
+    if (!loading) loadPosts();
+  };
+
   const sidebarTranslateX = animatedValue.interpolate({
     inputRange: [0, 1],
     outputRange: [-width * 0.8, 0],
+  });
+
+  const rotation = rotationValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "360deg"],
   });
 
   const renderPosts = () => (
@@ -82,34 +113,60 @@ const HomeScreen: React.FC<Props> = ({ navigation, route }) => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Animated.View style={[styles.sidebar, { transform: [{ translateX: sidebarTranslateX }] }]}>
-        {isSidebarOpen && <Sidebar toggleSidebar={() => setSidebarOpen(!isSidebarOpen)} userRole="parent" userid={userid} childclass={childclass} />}
-      </Animated.View>
+    <TouchableWithoutFeedback onPress={handleTouch} onPressOut={Keyboard.dismiss}>
+      <SafeAreaView style={styles.container}>
+        <Animated.View style={[styles.sidebar, { transform: [{ translateX: sidebarTranslateX }] }]}>
+          {isSidebarOpen && (
+            <Sidebar
+              toggleSidebar={() => setSidebarOpen(!isSidebarOpen)}
+              userRole="parent"
+              userid={userid}
+              teacherClass=""
+              childclass={childclass}
+            />
+          )}
+        </Animated.View>
 
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => setSidebarOpen(!isSidebarOpen)}>
-          <Ionicons name="menu" size={30} color={Colors.primary} />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>Events</Text>
-        <TouchableOpacity onPress={() => setSearchOpen(!isSearchOpen)}>
-          <Ionicons name="search" size={30} color={Colors.primary} />
-        </TouchableOpacity>
-      </View>
-
-      {isSearchOpen && (
-        <View style={styles.searchContainer}>
-          <TextInput style={styles.searchInput} placeholder="Search..." />
-          <TouchableOpacity onPress={() => setSearchOpen(false)}>
-            <Ionicons name="close" size={24} color={Colors.primary} />
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => setSidebarOpen(!isSidebarOpen)}>
+            <Ionicons name="menu" size={30} color={Colors.primary} />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>Event</Text>
+          <TouchableOpacity onPress={() => setSearchOpen(!isSearchOpen)}>
+            <Ionicons name="search" size={30} color={Colors.primary} />
           </TouchableOpacity>
         </View>
-      )}
 
-      {renderPosts()}
+        {isSearchOpen && (
+          <View style={styles.searchContainer}>
+            <TextInput style={styles.searchInput} placeholder="Search..." />
+            <TouchableOpacity onPress={() => setSearchOpen(false)}>
+              <Ionicons name="close" size={24} color={Colors.primary} />
+            </TouchableOpacity>
+          </View>
+        )}
 
-      <PBottomNavigator userid={userid}  navigation={navigation} />
-    </SafeAreaView>
+        {loading && (
+          <View style={styles.loaderContainer}>
+            <Animated.View
+              style={[
+                styles.loader,
+                {
+                  transform: [{ rotate: rotation }],
+                  shadowOpacity: 0.3,
+                  shadowRadius: 5,
+                  shadowColor: Colors.primary,
+                },
+              ]}
+            />
+          </View>
+        )}
+
+        {renderPosts()}
+
+        <PBottomNavigator userid={userid} navigation={navigation} />
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -153,6 +210,21 @@ const styles = StyleSheet.create({
   postImage: { width: "100%", height: 200, borderRadius: 8 },
   postDescription: { marginTop: 10, fontSize: 14, color: "#333" },
   noPostsText: { textAlign: "center", margin: 20, color: Colors.text },
+  loaderContainer: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: [{ translateX: -25 }, { translateY: -25 }],
+  },
+  loader: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 5,
+    borderColor: Colors.primary,
+    borderTopColor: "transparent",
+    backgroundColor: "transparent",
+  },
 });
 
 export default HomeScreen;

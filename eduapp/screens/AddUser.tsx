@@ -10,16 +10,19 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { StackNavigationProp } from "@react-navigation/stack";
 import { NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "../types";
 import bcrypt from "react-native-bcrypt";
 
-// Define type for navigation props
+type AddUserNavigationProp = StackNavigationProp<RootStackParamList, 'TeacherHomeScreen'>;
 type Props = {
-  navigation: NavigationProp<RootStackParamList>;
+  navigation: AddUserNavigationProp;
+  route: any;
 };
 
-const AddUser: React.FC<Props> = ({ navigation }) => {
+const AddUser: React.FC<Props> = ({ navigation,route }) => {
+  const {teacherClass } = route.params;
   const [userid, setUserid] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -58,7 +61,7 @@ const AddUser: React.FC<Props> = ({ navigation }) => {
         setPassword("");
   
         setTimeout(() => {
-          navigation.navigate("TeacherHomeScreen");
+          navigation.replace("TeacherHomeScreen",{teacherClass});
         }, 1500); // 1.5 seconds delay for success message display
       } else {
         throw new Error(result.message || "Failed to register user.");
@@ -81,7 +84,7 @@ const AddUser: React.FC<Props> = ({ navigation }) => {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate("TeacherHomeScreen")}>
+        <TouchableOpacity onPress={() => navigation.navigate("TeacherHomeScreen", {teacherClass})}>
           <Ionicons name="chevron-back" size={25} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Add User</Text>

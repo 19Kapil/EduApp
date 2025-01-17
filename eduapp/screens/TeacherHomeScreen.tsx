@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
+//import io from "socket.io-client"; // Import Socket.IO client
 import Colors from "../constants/Colors";
 import Sidebar from "../components/SIdebar";
 import BottomNavigator from "../components/BottomNavigator";
@@ -40,8 +41,33 @@ const TeacherHomeScreen: React.FC<Props> = ({ navigation, route }) => {
   const [error, setError] = useState<string | null>(null);
   const animatedValue = useRef(new Animated.Value(0)).current;
   const teacherClass = route.params?.teacherClass || 0;
-
+  const rotationValue = useRef(new Animated.Value(0)).current;
   
+  // const socket = useRef(io("http://192.168.1.64:5000")).current; // Establish the WebSocket connection
+  
+
+  useEffect(() => {
+      Animated.timing(animatedValue, {
+        toValue: isSidebarOpen ? 1 : 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }, [isSidebarOpen]);
+  
+    const startLoadingAnimation = () => {
+      Animated.loop(
+        Animated.timing(rotationValue, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        })
+      ).start();
+    };
+  
+    const stopLoadingAnimation = () => {
+      rotationValue.setValue(0); // Reset rotation
+    };
+  // Function to load posts
   const loadPosts = async () => {
     try {
       setLoading(true);
@@ -54,6 +80,7 @@ const TeacherHomeScreen: React.FC<Props> = ({ navigation, route }) => {
     }
   };
 
+  // Function to handle deleting a post
   const deletePost = async () => {
     try {
       await axios.delete(`http://192.168.1.64:5000/api/posts/${selectedPostId}`);
@@ -64,18 +91,25 @@ const TeacherHomeScreen: React.FC<Props> = ({ navigation, route }) => {
     }
   };
 
-  useEffect(() => {
-    Animated.timing(animatedValue, {
-      toValue: isSidebarOpen ? 1 : 0,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  }, [isSidebarOpen]);
+  // Connect to socket on mount
+  // useEffect(() => {
+  //   socket.on("updateFeed", (newPost: Post) => {
+  //     setPosts((prevPosts) => [newPost, ...prevPosts]); // Prepend the new post to the existing posts
+  //   });
 
+  //   // Clean up the socket connection when the component unmounts
+  //   return () => {
+  //     socket.off("updateFeed"); // Unsubscribe from the event
+  //   };
+  // }, []);
+
+
+  // Load posts initially
   useEffect(() => {
     loadPosts();
   }, []);
 
+  // Render posts
   const renderPosts = () => {
     if (loading) return <ActivityIndicator size="large" color={Colors.primary} />;
     if (error) return <Text style={styles.errorText}>{error}</Text>;
@@ -101,7 +135,7 @@ const TeacherHomeScreen: React.FC<Props> = ({ navigation, route }) => {
   return (
     <SafeAreaView style={styles.container}>
       <Animated.View style={[styles.sidebar, { transform: [{ translateX: animatedValue.interpolate({ inputRange: [0, 1], outputRange: [-300, 0] }) }] }]}>
-        {isSidebarOpen && <Sidebar toggleSidebar={() => setSidebarOpen(!isSidebarOpen)} userRole="teacher" teacherClass={ teacherClass} />}
+        {isSidebarOpen && <Sidebar toggleSidebar={() => setSidebarOpen(!isSidebarOpen)} userRole="teacher" teacherClass={teacherClass} userid="" childclass={teacherClass} />}
       </Animated.View>
 
       <View style={styles.header}>
@@ -109,7 +143,7 @@ const TeacherHomeScreen: React.FC<Props> = ({ navigation, route }) => {
           <Ionicons name="menu" size={30} color={Colors.primary} />
         </TouchableOpacity>
         <Text style={styles.welcomeText}>Events</Text>
-        <TouchableOpacity onPress={() => navigation.navigate("AddPostScreen")}>
+        <TouchableOpacity onPress={() => navigation.navigate("AddPostScreen", { teacherClass })}>
           <Ionicons name="add" size={30} color={Colors.primary} />
         </TouchableOpacity>
       </View>

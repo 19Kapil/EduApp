@@ -10,6 +10,7 @@ const { all } = require("axios");
 const app = express();
 const server = http.createServer(app);
 const PORT = 5000;
+// const io = require("socket.io")(server)
 
 
 // CORS Configuration
@@ -46,6 +47,23 @@ db.connect((err) => {
     console.log("Connected to MySQL database");
   }
 });
+
+// // Socket.IO setup
+// io.on("connection", (socket) => {
+//   console.log("A user connected");
+
+//   // Listen for 'newPost' event from the client and broadcast it to all connected clients
+//   socket.on("newPost", (postData) => {
+//     console.log("New post uploaded:", postData);
+//     io.emit("updateFeed", postData); // Emit the new post to all connected clients
+//   });
+
+//   // Handle disconnection
+//   socket.on("disconnect", () => {
+//     console.log("A user disconnected");
+//   });
+// });
+
 
  app.use(allRoutes);
 

@@ -10,15 +10,17 @@ import {
 import Colors from "../constants/Colors";
 import Font from "../constants/Font";
 import FontSize from "../constants/FontSize";
-import { NavigationProp } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../types";
 import { RouteProp } from "@react-navigation/native";
 
 const Spacing = 30;
 
+type AddScreenNavigationProp = StackNavigationProp<RootStackParamList, 'HomeScreen'>;
+
 type Props = {
-  navigation: NavigationProp<RootStackParamList>;
-  route: RouteProp<RootStackParamList, "AddScreen">;
+  navigation: AddScreenNavigationProp;
+  route: any;
 };
 
 const AddScreen: React.FC<Props> = ({ navigation, route }) => {
@@ -50,7 +52,7 @@ const AddScreen: React.FC<Props> = ({ navigation, route }) => {
 
       if (response.ok) {
         console.log("Child added successfully");
-        navigation.navigate("HomeScreen", { userid });
+        navigation.replace("HomeScreen", { userid, childclass: childClass });
       } else {
         const errorData = await response.json();
         console.error("Failed to add child:", errorData.message);
