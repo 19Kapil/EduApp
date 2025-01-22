@@ -41,6 +41,7 @@ const TeacherHomeScreen: React.FC<Props> = ({ navigation, route }) => {
   const [error, setError] = useState<string | null>(null);
   const animatedValue = useRef(new Animated.Value(0)).current;
   const teacherClass = route.params?.teacherClass || 0;
+  const teacherId = route.params?.teacherId || 0;
   const rotationValue = useRef(new Animated.Value(0)).current;
   
   // const socket = useRef(io("http://192.168.1.64:5000")).current; // Establish the WebSocket connection
@@ -142,7 +143,7 @@ const TeacherHomeScreen: React.FC<Props> = ({ navigation, route }) => {
         <TouchableOpacity onPress={() => setSidebarOpen(!isSidebarOpen)}>
           <Ionicons name="menu" size={30} color={Colors.primary} />
         </TouchableOpacity>
-        <Text style={styles.welcomeText}>Events</Text>
+        <Text style={styles.welcomeText}>Events{teacherId}</Text>
         <TouchableOpacity onPress={() => navigation.navigate("AddPostScreen", { teacherClass })}>
           <Ionicons name="add" size={30} color={Colors.primary} />
         </TouchableOpacity>
@@ -167,7 +168,7 @@ const TeacherHomeScreen: React.FC<Props> = ({ navigation, route }) => {
         </Modal>
       )}
 
-      <BottomNavigator teacherClass={teacherClass} navigation={navigation} />
+      <BottomNavigator teacherClass={teacherClass} teacherId={teacherId} navigation={navigation} />
     </SafeAreaView>
   );
 };

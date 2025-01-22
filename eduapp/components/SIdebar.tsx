@@ -1,4 +1,4 @@
-import React, { useState}from "react";
+import React, { useState } from "react";
 import {
   View,
   TouchableOpacity,
@@ -24,18 +24,21 @@ type SidebarProps = {
   childclass: number;
 };
 
-
-
-const Sidebar: React.FC<SidebarProps> = ({toggleSidebar,userRole,userid,teacherClass,childclass }) => {
+const Sidebar: React.FC<SidebarProps> = ({
+  toggleSidebar,
+  userRole,
+  userid,
+  teacherClass,
+  childclass,
+}) => {
   const navigation = useNavigation();
   const [academiaDropdownOpen, setAcademiaDropdownOpen] = React.useState(false);
-  const[ClassRoutineOpen, setClassRoutineOpen] = React.useState(false);
+  const [ClassRoutineOpen, setClassRoutineOpen] = React.useState(false);
   const [yearlyPlanOpen, setYearlyPlanOpen] = React.useState(false);
   const [monthlyPlanOpen, setMonthlyPlanOpen] = React.useState(false);
   const [ecaDropdownOpen, setEcaDropdownOpen] = React.useState(false);
   const [ccaDropdownOpen, setCcaDropdownOpen] = React.useState(false);
   const [addChildOpen, setAddChildOpen] = React.useState(false);
-
 
   if (Platform.OS === "android") {
     UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -77,7 +80,7 @@ const Sidebar: React.FC<SidebarProps> = ({toggleSidebar,userRole,userid,teacherC
   };
 
   const handleClassRoutinePress = () => {
-    navigation.navigate("ClassRoutineScreen" , {teacherClass, childclass});
+    navigation.navigate("ClassRoutineScreen", { teacherClass, childclass });
   };
 
   const handleYearlyPlanPress = () => {
@@ -93,32 +96,35 @@ const Sidebar: React.FC<SidebarProps> = ({toggleSidebar,userRole,userid,teacherC
   };
 
   const handleCCAPress = () => {
-    navigation.navigate("CcaScreen" ,{teacherClass, childclass});
+    navigation.navigate("CcaScreen", { teacherClass, childclass });
   };
 
   const handleAddPress = () => {
-    navigation.navigate("AddScreen" , { userid });
+    navigation.navigate("AddScreen", { userid });
   };
 
   const handleStudentPress = () => {
-    navigation.navigate("ChildProfileScreen" , { userid });
+    navigation.navigate("ChildProfileScreen", { userid });
   };
 
   const handleAddUser = () => {
-    navigation.navigate("AddUser", {teacherClass} ,);
+    navigation.navigate("AddUser", { teacherClass });
   };
-
 
   const handleLogout = () => {
-    axios.post('http://192.168.1.64:5000/api/logout', {}, { withCredentials: true })
+    axios
+      .post(
+        "http://192.168.1.64:5000/api/logout",
+        {},
+        { withCredentials: true }
+      )
       .then(() => {
-        navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+        navigation.reset({ index: 0, routes: [{ name: "Login" }] });
       })
       .catch(() => {
-        alert('Logout failed. Please try again.');
+        alert("Logout failed. Please try again.");
       });
   };
-  
 
   return (
     <View style={styles.sidebar}>
@@ -130,8 +136,7 @@ const Sidebar: React.FC<SidebarProps> = ({toggleSidebar,userRole,userid,teacherC
           source={require("../assets/images/school.png")}
           style={styles.logo}
         />
-        <Text style={styles.schoolName}>Pragati Secondary School
-        </Text>
+        <Text style={styles.schoolName}>Pragati Secondary School</Text>
       </View>
       <View style={styles.content}>
         <View style={styles.menuItems}>
@@ -150,8 +155,6 @@ const Sidebar: React.FC<SidebarProps> = ({toggleSidebar,userRole,userid,teacherC
           </TouchableOpacity>
           {academiaDropdownOpen && (
             <View style={styles.subMenu}>
-
-
               <TouchableOpacity
                 style={styles.subMenuItem}
                 onPress={handleClassRoutinePress}
@@ -191,15 +194,12 @@ const Sidebar: React.FC<SidebarProps> = ({toggleSidebar,userRole,userid,teacherC
           <TouchableOpacity style={styles.sidebarItem} onPress={handleAddUser}>
             <Ionicons name="person-add" size={24} color={Colors.primary} />
             <Text style={styles.sidebarItemText}>Add User</Text>
-            <Ionicons
-              size={24}
-              color={Colors.primary}
-            />
+            <Ionicons size={24} color={Colors.primary} />
           </TouchableOpacity>
         )}
-         
+
         {/* Conditional Rendering for "Your Children" */}
-        
+
         {userRole === "parent" && (
           <TouchableOpacity style={styles.sidebarItem} onPress={toggleAddChild}>
             <Ionicons name="person-add" size={24} color={Colors.primary} />
@@ -216,10 +216,12 @@ const Sidebar: React.FC<SidebarProps> = ({toggleSidebar,userRole,userid,teacherC
             <TouchableOpacity
               style={styles.subMenuItem}
               onPress={handleStudentPress}
-            >
-            </TouchableOpacity>
+            ></TouchableOpacity>
 
-            <TouchableOpacity style={styles.subMenuItem} onPress={handleAddPress}>
+            <TouchableOpacity
+              style={styles.subMenuItem}
+              onPress={handleAddPress}
+            >
               <Ionicons name="person-add" size={20} color={Colors.primary} />
               <Text style={styles.subMenuItemText}>Add Child</Text>
             </TouchableOpacity>
@@ -231,9 +233,7 @@ const Sidebar: React.FC<SidebarProps> = ({toggleSidebar,userRole,userid,teacherC
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
     </View>
-    
   );
-
 };
 
 const styles = StyleSheet.create({
@@ -242,7 +242,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   subMenuItem: {
-
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 6,

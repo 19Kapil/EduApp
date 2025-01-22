@@ -16,15 +16,15 @@ export type RootStackParamList = {
   ClassRoutineScreen: { teacherClass: string, childclass: number };
   YearlyPlanScreen: undefined;
   HomeScreen: { userid: string, childclass: number };
-  TeacherHomeScreen: { teacherClass: string };
+  TeacherHomeScreen: { teacherClass: string, teacherId: number };
   AddScreen: { userid: string };
   TeacherChatScreen: undefined;
   ParentsChatScreen: undefined;
   ParentsRoutineScreen: undefined;
   StudentListScreen: { teacherClass: string }; 
   ChildProfileScreen: {userid: string};
-  ChatScreen: undefined;
-  TChatScreen: undefined;
+  Chat: { name: string; registration_number: number };
+  TChatScreen: {teacherClass: string, teacherId: number};
   StudentsIndiScreen:{ teacherClass: string};
   CcaScreen: {teacherClass: string, childclass: number};
   CallScreen: undefined;

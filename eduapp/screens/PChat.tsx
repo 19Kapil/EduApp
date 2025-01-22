@@ -19,7 +19,7 @@ interface ChatMessage {
   senderid: string;
   receiverid: string;
   date: string;
-  isSentByTeacher?: boolean;
+  isSentByParent?: boolean;
 }
 
 interface Props {
@@ -33,7 +33,7 @@ interface Props {
   navigation: any;
 }
 
-const TChat: React.FC<Props> = ({ route, navigation }) => {
+const PChat: React.FC<Props> = ({ route, navigation }) => {
   const { name, teacherId, userid } = route.params;
   const [message, setMessage] = useState<string>("");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -45,13 +45,13 @@ const TChat: React.FC<Props> = ({ route, navigation }) => {
       setLoading(true);
       try {
         const { data } = await axios.get(
-          `http://192.168.1.64:5000/api/messages/${teacherId}/${userid}`
+          `http://192.168.1.64:5000/api/messages/${userid}/${teacherId}`
         );
         if (data.success) {
           setChatMessages(
             data.messages.map((msg: ChatMessage) => ({
               ...msg,
-              isSentByTeacher: msg.senderid === teacherId,
+              isSentByParent: msg.senderid === userid,
             }))
           );
         }
@@ -63,14 +63,14 @@ const TChat: React.FC<Props> = ({ route, navigation }) => {
     };
 
     fetchChatMessages();
-  }, [teacherId, userid]);
+  }, [ userid]);
 
   const sendMessage = async () => {
     if (message.trim()) {
       const newMessage = {
         message: message.trim(),
-        senderid: teacherId,
-        receiverid: userid,
+        senderid: userid,
+        receiverid: teacherId,
         date: new Date().toISOString(),
       };
       setChatMessages((prevMessages) => [...prevMessages, newMessage]);
@@ -78,7 +78,7 @@ const TChat: React.FC<Props> = ({ route, navigation }) => {
 
       try {
         await axios.post(
-          `http://192.168.1.64:5000/api/sendmessage/${teacherId}/${userid}`,
+          `http://192.168.1.64:5000/api/sendmessage/${userid}/${teacherId}`,
           newMessage
         );
       } catch (error) {
@@ -109,7 +109,7 @@ const TChat: React.FC<Props> = ({ route, navigation }) => {
         </TouchableOpacity>
         <View style={styles.titleContainer}>
           <Image source={require("../assets/images/student.jpeg")} style={styles.avatar} />
-          <Text style={styles.title}>{name}'s Parent</Text>
+          <Text style={styles.title}>{name} to Teacher</Text>
         </View>
       </View>
 
@@ -121,13 +121,13 @@ const TChat: React.FC<Props> = ({ route, navigation }) => {
       >
         {chatMessages.length > 0 ? (
           chatMessages.map((msg, idx) => {
-            const isSentByTeacher = msg.senderid == teacherId;
+            const isSentByParent = msg.senderid == userid;
             return (
               <View
                 key={idx}
-                style={[styles.messageContainer, isSentByTeacher ? styles.sentMessage : styles.receivedMessage]}
+                style={[styles.messageContainer, isSentByParent ? styles.sentMessage : styles.receivedMessage]}
               >
-                <Text style={[styles.messageText, { color: isSentByTeacher ? "white" : "black" }]}>
+                <Text style={[styles.messageText, { color: isSentByParent ? "white" : "black" }]}>
                   {msg.message}
                 </Text>
               </View>
@@ -178,4 +178,4 @@ const styles = StyleSheet.create({
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
 });
 
-export default TChat;
+export default PChat;

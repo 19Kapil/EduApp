@@ -1,26 +1,30 @@
 import React from "react";
 import { View, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { NavigationProp } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types";
 
 type PBottomNavigatorProps = {
-  navigation: NavigationProp<RootStackParamList>;
-  userid: string; 
-  //childclass: string;
+  navigation:NativeStackNavigationProp<RootStackParamList>;
+  userid: string;
+  childclass: string;
 };
 
-const PBottomNavigator: React.FC<PBottomNavigatorProps> = ({ navigation,userid}) => {
+const PBottomNavigator: React.FC<PBottomNavigatorProps> = ({
+  navigation,
+  userid,
+  childclass,
+}) => {
   const navigateTo = (screen: keyof RootStackParamList) => {
     switch (screen) {
-      case "ParentsChatScreen":
-        navigation.navigate("ParentsChatScreen");
+      case "ParentChatScreen":
+        navigation.navigate("ParentChatScreen", { userid, childclass });
         break;
       case "ParentsRoutineScreen":
         navigation.navigate("ParentsRoutineScreen");
         break;
       case "ChildProfileScreen":
-        navigation.navigate("ChildProfileScreen", {userid} );
+        navigation.navigate("ChildProfileScreen", { userid });
         break;
       default:
         break;
@@ -35,7 +39,7 @@ const PBottomNavigator: React.FC<PBottomNavigatorProps> = ({ navigation,userid})
         <TouchableOpacity onPress={() => navigateTo("HomeScreen")}>
           <Ionicons name="home" size={35} color={iconColor} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigateTo("ParentsChatScreen")}>
+        <TouchableOpacity onPress={() => navigateTo("ParentChatScreen")}>
           <Ionicons name="chatbubbles" size={35} color={iconColor} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigateTo("ParentsRoutineScreen")}>

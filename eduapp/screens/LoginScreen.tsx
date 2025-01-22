@@ -34,7 +34,6 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
       const { data } = await axios.post("http://192.168.1.64:5000/api/login", { userid: userid.trim(), password: password.trim() });
   
       if (data.success) {
-        console.log("Childclass:", data.user.childclass);
         navigation.navigate("HomeScreen", { userid, childclass: data.user.childclass });
         Alert.alert("Login Successful");
       } else {
@@ -60,12 +59,14 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
       });
   
       if (data.success) {
-        Alert.alert("Login Successful" );
-        navigation.navigate("TeacherHomeScreen", { teacherClass: data.teacherClass });
+        Alert.alert("Login Successful"); 
+        navigation.navigate("TeacherHomeScreen", { teacherClass: data.teacherClass, teacherId: data.teacherId });
+
+
         
       } else {
         Alert.alert(data.message || "Invalid credentials");
-      }
+      } 
     } catch (error) {
       const message = axios.isAxiosError(error)
         ? error.response?.data?.message || error.message

@@ -50,7 +50,7 @@ const login = async (req, res) => {
       }
   
       const teacher = results[0];
-      res.send({ success: true, teacherClass: teacher.teacherClass });
+      res.send({ success: true, teacherClass: teacher.teacherClass, teacherId: teacher.teacherId });
     });
   };
   

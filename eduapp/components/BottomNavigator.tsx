@@ -8,9 +8,10 @@ import { RootStackParamList } from "../types"; // Make sure this is imported fro
 type BottomNavigatorProps = {
   navigation: NativeStackNavigationProp<RootStackParamList>;
   teacherClass: number;
+  teacherId: number;
 };
 
-const BottomNavigator: React.FC<BottomNavigatorProps> = ({ navigation, teacherClass }) => {
+const BottomNavigator: React.FC<BottomNavigatorProps> = ({ navigation, teacherClass,teacherId}) => {
   const iconColor = "#000000";
 
   return (
@@ -19,7 +20,7 @@ const BottomNavigator: React.FC<BottomNavigatorProps> = ({ navigation, teacherCl
         <TouchableOpacity onPress={() => navigation.navigate("TeacherHomeScreen")}>
           <Ionicons name="home" size={35} color={iconColor} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("TeacherChatScreen")}>
+        <TouchableOpacity onPress={() => navigation.navigate("TeacherChatScreen", { teacherClass,teacherId} )}>
           <Ionicons name="chatbubbles" size={35} color={iconColor} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate("TeacherRoutineScreen")}>

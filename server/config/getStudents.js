@@ -18,6 +18,28 @@ const getStudents = (req, res, db) => {
     });
   };
 
+
+  const getTeachers = (req, res, db) => {
+    const childclass = req.query.class;
+    console.log(childclass);
+  
+    if (!childclass) {
+      return res.status(400).json({ error: "Class parameter is required" });
+    }
+    const query = `SELECT teacherName, teacherId FROM teachers WHERE teacherClass = ?`;
+    db.query(query, [childclass], (err, results) => {
+      if (err) {
+        console.error("Error fetching teachers:", err);
+        return res.status(500).json({ error: "Failed to fetch teachers" });
+      }
+  
+      res.json(results);
+    });
+  };
+
+
+
+
   const getReport = (req, res, db) => {
     const teacherClass = req.query.class;
     const studentRollNo = req.query.roll_number;
@@ -58,4 +80,4 @@ const getStudents = (req, res, db) => {
   
   
 
-  module.exports = { getStudents, getReport }; 
+  module.exports = { getStudents, getReport, getTeachers}; 

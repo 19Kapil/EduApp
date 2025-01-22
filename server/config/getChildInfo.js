@@ -42,4 +42,8 @@ const getChildDetails = async (req, res) => {
     }
 };
 
+
+
+
+
 module.exports = { getChildRegistrationNumber, getChildDetails };

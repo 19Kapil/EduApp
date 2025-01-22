@@ -15,14 +15,18 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
+ //import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types";
 import PBottomNavigator from "../components/PBottomNavigator";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import Sidebar from "../components/SIdebar";
 import Font from "../constants/Font";
 import Colors from "../constants/Colors";
 
-type Props = NativeStackScreenProps<RootStackParamList, "HomeScreen">;
+type Props ={
+  navigation:NativeStackNavigationProp<RootStackParamList>;
+  route: any;
+}
 
 interface Post {
   id: string;
@@ -131,7 +135,7 @@ const HomeScreen: React.FC<Props> = ({ navigation, route }) => {
           <TouchableOpacity onPress={() => setSidebarOpen(!isSidebarOpen)}>
             <Ionicons name="menu" size={30} color={Colors.primary} />
           </TouchableOpacity>
-          <Text style={styles.headerText}>Event</Text>
+          <Text style={styles.headerText}>Events</Text>
           <TouchableOpacity onPress={() => setSearchOpen(!isSearchOpen)}>
             <Ionicons name="search" size={30} color={Colors.primary} />
           </TouchableOpacity>
@@ -164,7 +168,7 @@ const HomeScreen: React.FC<Props> = ({ navigation, route }) => {
 
         {renderPosts()}
 
-        <PBottomNavigator userid={userid} navigation={navigation} />
+        <PBottomNavigator userid={userid} childclass={childclass} navigation={navigation} />
       </SafeAreaView>
     </TouchableWithoutFeedback>
   );

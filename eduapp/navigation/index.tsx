@@ -5,19 +5,17 @@ import Colors from "../constants/Colors";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import Welcome from "../screens/WelcomeScreen";
-import ParentsChatScreen from "../screens/ParentsChat";
+import ParentChatScreen from "../screens/ParentChatScreen";
+import PChat from "../screens/PChat";
 import { RootStackParamList } from "../types";
 import CodeScreen from "../screens/CodeScreen";
 import HomeScreen from "../screens/HomeScreen";
 import TeacherHomeScreen from "../screens/TeacherHomeScreen";
 import TeacherChatScreen from "../screens/TeacherChatScreen";
-import ParentsRoutineScreen from "../screens/ParentsRoutine";
 import StudentListScreen from "../screens/StudentListScreen";
 import ChildProfileScreen from "../screens/ChildProfileScreen";
-// import TeacherRoutineScreen from "../screens/ClassRoutineScreen";
-import ChatScreen from "../screens/Chat";
+import TChat from "../screens/TChat";
 import YearlyPlanScreen from "../screens/YearlyPlan";
-import TChatScreen from "../screens/TChat";
 import StudentsIndiScreen from "../screens/StudentsIndi";
 import AddPostScreen from "../screens/AddPost";
 import CallScreen from "../screens/CallScreen";
@@ -63,8 +61,7 @@ function RootNavigator() {
       <Stack.Screen name="HomeScreen" component={HomeScreen} />
       <Stack.Screen name="TeacherHomeScreen" component={TeacherHomeScreen} />
       <Stack.Screen name="TeacherChatScreen" component={TeacherChatScreen} />
-      <Stack.Screen name="ChatScreen" component={ChatScreen} />
-      <Stack.Screen name="TChatScreen" component={TChatScreen} />
+      <Stack.Screen name="TChat" component={TChat}/>
       <Stack.Screen name="StudentsIndiScreen" component={StudentsIndiScreen} />
       <Stack.Screen name="ClassRoutineScreen" component={ClassRoutineScreen} /> 
       <Stack.Screen name="YearlyPlanScreen" component={YearlyPlanScreen} />
@@ -90,13 +87,13 @@ function RootNavigator() {
       <Stack.Screen name="AddPostScreen" component={AddPostScreen} />
       <Stack.Screen name="AddUser" component={AddUser} />
 
-      <Stack.Screen
-        name="ParentsRoutineScreen"
-        component={ParentsRoutineScreen}
-      />
-      <Stack.Screen name="ParentsChatScreen" component={ParentsChatScreen} />
+      
+      <Stack.Screen name="ParentChatScreen" component={ParentChatScreen} />
+      <Stack.Screen name="PChat" component={PChat} />
       <Stack.Screen name="CallScreen" component={CallScreen} />
       <Stack.Screen name="AttendanceScreen" component={AttendanceScreen} />
     </Stack.Navigator>
+
+
   );
-}
+}         

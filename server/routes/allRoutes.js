@@ -3,12 +3,14 @@ const { login, teacherlogin, logout } = require("../config/login");
 const { addUser } = require("../config/addUser");
 const { addPost } = require("../config/addPost");
 const { loadPost, delPost } = require("../config/loadPost");
-const { getStudents, getReport } = require("../config/getStudents");
+const { getStudents, getReport, getTeachers } = require("../config/getStudents");
 const { addChild } = require("../config/addChild");
 const { getChildRegistrationNumber, getChildDetails } = require("../config/getChildInfo");
 const {updateAttendance, getAttendance} = require("../config/Attendance");
 const {updateActivity, getActivity} = require("../config/Activity");
 const {addRoutine, loadRoutine} = require("../config/addRoutine");
+const {sendMessage, getMessages} = require("../config/Message");
+
 const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() });
 const db = require("../config/db"); 
@@ -28,6 +30,7 @@ router.delete("/api/posts/:id", (req, res) => delPost(req, res, db));
 
 router.get("/api/students", (req, res) => getStudents(req, res, db));
 router.get("/api/report", (req, res) => getReport(req, res, db));
+router.get("/api/teachers", (req, res) => getTeachers(req, res, db));
 
 router.put("/api/addchild" , (req, res) => addChild(req, res, db));
 
@@ -43,5 +46,7 @@ router.put("/api/activities/:id", (req, res) => updateActivity(req, res, db));
 router.put("/api/addRoutine", upload.single("image"), (req, res) => addRoutine(req, res, db));
 router.get("/api/routine", (req, res) => loadRoutine(req, res, db));
 
+router.post("/api/sendmessage/:senderid/:receiverid", (req, res) => sendMessage(req, res, db));
+router.get("/api/messages/:id1/:id2", (req, res) => getMessages(req, res, db));
 
 module.exports = router;

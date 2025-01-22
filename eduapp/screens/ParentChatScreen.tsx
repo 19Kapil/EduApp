@@ -14,41 +14,44 @@ import FontSize from "../constants/FontSize";
 import Font from "../constants/Font";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RouteProp } from "@react-navigation/native";
-import DefaultAvatar from "../assets/images/student.jpeg";
+import DefaultAvatar from "../assets/images/teacher.jpeg";
 import axios from "axios";
 
 // Define RootStackParamList with the correct screen names and parameters
 type RootStackParamList = {
-  TeacherChatScreen: { teacherClass: number; teacherId: number };
-  TChat: { name: string; registration_number: number, teacherId: number, userid: string };
+  ParentChatScreen: { userid: string; childclass: number };
+  PChat: {
+    name: string;
+    teacherId: number;
+    userid: string;
+  };
 };
 
-interface Student {
-  id: string;
-  name: string;
+interface teacher {
+  teacherName: string;
   avatar?: string;
-  registration_number: number;
-  userid: string;
+  teacherClass: number;
+  teacherId: number;
 }
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList>;
-  route: RouteProp<RootStackParamList, "TeacherChatScreen">;
+  route: RouteProp<RootStackParamList, "ParentChatScreen">;
 };
 
-const TeacherChatScreen: React.FC<Props> = ({ navigation, route }) => {
-  const { teacherClass, teacherId } = route.params;
-  const [students, setStudents] = useState<Student[]>([]);
+const ParentChatScreen: React.FC<Props> = ({ navigation, route }) => {
+  const { userid, childclass } = route.params;
+  const [teacher, setTeacher] = useState<teacher[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchStudents = async () => {
+  const fetchTeacher = async () => {
     try {
       setLoading(true);
       setError(null);
 
       const response = await axios.get(
-        `http://192.168.1.64:5000/api/students?class=${teacherClass}`
+        `http://192.168.1.64:5000/api/teachers?class=${childclass}`
       );
 
       if (response.status !== 200) {
@@ -57,15 +60,14 @@ const TeacherChatScreen: React.FC<Props> = ({ navigation, route }) => {
 
       const data = response.data;
 
-      const studentsList: Student[] = data.map((item: any) => ({
-        id: item.student_id,
-        name: item.name,
+      const teacherList: teacher[] = data.map((item: any) => ({
+        teacherName: item.teacherName,
         avatar: item.avatar || null,
-        registration_number: item.registration_number,
-        userid: item.userid,
+        teacherClass: item.teacherClass,
+        teacherId: item.teacherId,
       }));
 
-      setStudents(studentsList);
+      setTeacher(teacherList);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -78,8 +80,8 @@ const TeacherChatScreen: React.FC<Props> = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    fetchStudents();
-  }, [teacherClass]);
+    fetchTeacher();
+  }, [childclass]);
 
   if (loading) {
     return (
@@ -94,7 +96,7 @@ const TeacherChatScreen: React.FC<Props> = ({ navigation, route }) => {
     return (
       <View style={styles.loadingContainer}>
         <Text>Error: {error}</Text>
-        <TouchableOpacity onPress={fetchStudents}>
+        <TouchableOpacity onPress={fetchTeacher}>
           <Text style={styles.retryText}>Retry</Text>
         </TouchableOpacity>
       </View>
@@ -110,27 +112,25 @@ const TeacherChatScreen: React.FC<Props> = ({ navigation, route }) => {
         <Text style={styles.headerText}>Chat</Text>
       </View>
       <ScrollView>
-        {students.map((student) => (
+        {teacher.map((teacher) => (
           <TouchableOpacity
-            key={student.id}
+            key={teacher.teacherId}
             onPress={() =>
-              navigation.navigate("TChat", {
-                name: student.name,
-                registration_number: student.registration_number,
-                teacherId: teacherId,
-                userid: student.userid,
-
+              navigation.navigate("PChat", {
+                name: teacher.teacherName,
+                teacherId: teacher.teacherId,
+                userid: userid,
               })
             }
           >
             <View style={styles.textContainer}>
               <Image
                 source={
-                  student.avatar ? { uri: student.avatar } : DefaultAvatar
+                  teacher.avatar ? { uri: teacher.avatar } : DefaultAvatar
                 }
                 style={styles.avatar}
               />
-              <Text style={styles.studentName}>{student.name}'s Parents</Text>
+              <Text style={styles.studentName}>{teacher.teacherName}</Text>
             </View>
           </TouchableOpacity>
         ))}
@@ -186,4 +186,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TeacherChatScreen;
+export default ParentChatScreen;
