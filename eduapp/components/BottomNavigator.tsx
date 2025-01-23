@@ -23,7 +23,7 @@ const BottomNavigator: React.FC<BottomNavigatorProps> = ({ navigation, teacherCl
         <TouchableOpacity onPress={() => navigation.navigate("TeacherChatScreen", { teacherClass,teacherId} )}>
           <Ionicons name="chatbubbles" size={35} color={iconColor} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("TeacherRoutineScreen")}>
+        <TouchableOpacity onPress={() => navigation.navigate("ClassRoutineScreen", { teacherClass })}>
           <Ionicons name="calendar" size={35} color={iconColor} />
         </TouchableOpacity>
         <TouchableOpacity

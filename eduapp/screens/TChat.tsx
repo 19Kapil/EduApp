@@ -12,14 +12,30 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
+import { io, Socket } from "socket.io-client";
 
-// Interfaces
 interface ChatMessage {
   message: string;
   senderid: string;
   receiverid: string;
   date: string;
   isSentByTeacher?: boolean;
+  room?: string;
+}
+
+interface FetchMessagesResponse {
+  success: boolean;
+  messages: ChatMessage[];
+}
+
+interface ServerToClientEvents {
+  newMessage: (message: ChatMessage) => void;
+}
+
+interface ClientToServerEvents {
+  sendMessage: (message: ChatMessage) => void;
+  joinRoom: (room: string) => void;
+  leaveRoom: (room: string) => void;
 }
 
 interface Props {
@@ -38,13 +54,19 @@ const TChat: React.FC<Props> = ({ route, navigation }) => {
   const [message, setMessage] = useState<string>("");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
+
+  const socket: Socket<ServerToClientEvents, ClientToServerEvents> = useRef(
+    io("http://192.168.1.64:5000")
+  ).current;
 
   useEffect(() => {
     const fetchChatMessages = async () => {
       setLoading(true);
+      setError(null);
       try {
-        const { data } = await axios.get(
+        const { data }: { data: FetchMessagesResponse } = await axios.get(
           `http://192.168.1.64:5000/api/messages/${teacherId}/${userid}`
         );
         if (data.success) {
@@ -55,25 +77,43 @@ const TChat: React.FC<Props> = ({ route, navigation }) => {
             }))
           );
         }
-      } catch (error) {
-        console.error("Error fetching chat messages:", error);
+      } catch (err) {
+        setError("USER NOT REGISTERED CHILD  YET !!!.");
+        console.error("Error fetching chat messages:", err);
       } finally {
         setLoading(false);
       }
     };
 
     fetchChatMessages();
+
+    const room = [userid, teacherId].sort().join("-");
+    socket.emit("joinRoom", room);
+
+    socket.on("newMessage", (msg: ChatMessage) => {
+      setChatMessages((prevMessages) => {
+        return [
+          ...prevMessages,
+          { ...msg, isSentByTeacher: msg.senderid === teacherId },
+        ];
+      });
+    });
+
+    return () => {
+      socket.emit("leaveRoom", room);
+      socket.off("newMessage");
+    };
   }, [teacherId, userid]);
 
   const sendMessage = async () => {
     if (message.trim()) {
-      const newMessage = {
+      const newMessage: ChatMessage = {
         message: message.trim(),
         senderid: teacherId,
-        receiverid: userid,
+        receiverid: userid ,
         date: new Date().toISOString(),
+        room: `${[teacherId, userid].sort().join("-")}`,
       };
-      setChatMessages((prevMessages) => [...prevMessages, newMessage]);
       setMessage("");
 
       try {
@@ -81,14 +121,18 @@ const TChat: React.FC<Props> = ({ route, navigation }) => {
           `http://192.168.1.64:5000/api/sendmessage/${teacherId}/${userid}`,
           newMessage
         );
-      } catch (error) {
-        console.error("Error sending message:", error);
+
+        socket.emit("sendMessage", newMessage);
+      } catch (err) {
+        setError("User Not Found Yet !!!");
+        console.error("Error sending message:", err);
       }
     }
   };
 
   useEffect(() => {
-    if (scrollViewRef.current) scrollViewRef.current.scrollToEnd({ animated: true });
+    if (scrollViewRef.current)
+      scrollViewRef.current.scrollToEnd({ animated: true });
   }, [chatMessages]);
 
   if (loading) {
@@ -108,7 +152,10 @@ const TChat: React.FC<Props> = ({ route, navigation }) => {
           <Ionicons name="chevron-back" size={35} color="black" />
         </TouchableOpacity>
         <View style={styles.titleContainer}>
-          <Image source={require("../assets/images/student.jpeg")} style={styles.avatar} />
+          <Image
+            source={require("../assets/images/student.jpeg")}
+            style={styles.avatar}
+          />
           <Text style={styles.title}>{name}'s Parent</Text>
         </View>
       </View>
@@ -119,15 +166,24 @@ const TChat: React.FC<Props> = ({ route, navigation }) => {
         contentContainerStyle={styles.chatContainer}
         keyboardShouldPersistTaps="handled"
       >
+        {error && <Text style={styles.errorText}>{error}</Text>}
         {chatMessages.length > 0 ? (
           chatMessages.map((msg, idx) => {
             const isSentByTeacher = msg.senderid == teacherId;
             return (
               <View
                 key={idx}
-                style={[styles.messageContainer, isSentByTeacher ? styles.sentMessage : styles.receivedMessage]}
+                style={[
+                  styles.messageContainer,
+                  isSentByTeacher ? styles.sentMessage : styles.receivedMessage,
+                ]}
               >
-                <Text style={[styles.messageText, { color: isSentByTeacher ? "white" : "black" }]}>
+                <Text
+                  style={[
+                    styles.messageText,
+                    { color: isSentByTeacher ? "white" : "black" },
+                  ]}
+                >
                   {msg.message}
                 </Text>
               </View>
@@ -162,20 +218,57 @@ const TChat: React.FC<Props> = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: { flex: 1, paddingHorizontal: 20, marginTop: 30 },
   header: { flexDirection: "row", alignItems: "center" },
-  titleContainer: { flexDirection: "row", alignItems: "center", marginLeft: 10 },
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: 10,
+  },
   title: { fontSize: 20, fontWeight: "bold" },
   avatar: { width: 40, height: 40, borderRadius: 20 },
   chatContainer: { flexGrow: 1, paddingBottom: 20 },
-  messageContainer: { padding: 10, marginVertical: 5, borderRadius: 10, maxWidth: "80%" },
-  sentMessage: { alignSelf: "flex-end", backgroundColor: "#007bff" },
-  receivedMessage: { alignSelf: "flex-start", backgroundColor: "#f0f0f0", marginLeft: 10, width: "50%" },
+  messageContainer: {
+    padding: 10,
+    marginVertical: 5,
+    borderRadius: 10,
+    maxWidth: "80%",
+  },
+  sentMessage: {
+    alignSelf: "flex-end",
+    backgroundColor: "#007bff",
+  },
+  receivedMessage: {
+    alignSelf: "flex-start",
+    backgroundColor: "#f0f0f0",
+    marginLeft: 10,
+    width: "50%",
+  },
   messageText: { fontSize: 16 },
-  inputContainer: { flexDirection: "row", alignItems: "center", padding: 10, borderTopWidth: 1, borderTopColor: "#ccc" },
-  input: { flex: 1, marginRight: 10, paddingVertical: 8, paddingHorizontal: 15, borderWidth: 1, borderRadius: 20, borderColor: "#ccc" },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#ccc",
+  },
+  input: {
+    flex: 1,
+    marginRight: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderWidth: 1,
+    borderRadius: 20,
+    borderColor: "#ccc",
+  },
   icon: { color: "blue", marginRight: 10 },
   sendButtonText: { color: "white", fontSize: 16, fontWeight: "bold" },
-  sendButton: { backgroundColor: "blue", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 18 },
+  sendButton: {
+    backgroundColor: "blue",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 18,
+  },
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
+  errorText: { color: "red", marginVertical: 10, textAlign: "center" },
 });
 
 export default TChat;

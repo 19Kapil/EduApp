@@ -118,7 +118,7 @@ const TeacherChatScreen: React.FC<Props> = ({ navigation, route }) => {
                 name: student.name,
                 registration_number: student.registration_number,
                 teacherId: teacherId,
-                userid: student.userid,
+                userid: student.userid || "",
 
               })
             }

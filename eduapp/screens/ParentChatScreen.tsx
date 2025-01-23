@@ -119,7 +119,7 @@ const ParentChatScreen: React.FC<Props> = ({ navigation, route }) => {
               navigation.navigate("PChat", {
                 name: teacher.teacherName,
                 teacherId: teacher.teacherId,
-                userid: userid,
+                userid: userid
               })
             }
           >
@@ -130,7 +130,7 @@ const ParentChatScreen: React.FC<Props> = ({ navigation, route }) => {
                 }
                 style={styles.avatar}
               />
-              <Text style={styles.studentName}>{teacher.teacherName}</Text>
+              <Text style={styles.studentName}>{teacher.teacherName}---class    { childclass}</Text>
             </View>
           </TouchableOpacity>
         ))}

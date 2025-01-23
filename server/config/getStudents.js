@@ -21,7 +21,7 @@ const getStudents = (req, res, db) => {
 
   const getTeachers = (req, res, db) => {
     const childclass = req.query.class;
-    console.log(childclass);
+   
   
     if (!childclass) {
       return res.status(400).json({ error: "Class parameter is required" });

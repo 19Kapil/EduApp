@@ -112,8 +112,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const handleLogout = () => {
-    axios
-      .post(
+    axios.post(
         "http://192.168.1.64:5000/api/logout",
         {},
         { withCredentials: true }

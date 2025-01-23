@@ -44,7 +44,6 @@ const TeacherHomeScreen: React.FC<Props> = ({ navigation, route }) => {
   const teacherId = route.params?.teacherId || 0;
   const rotationValue = useRef(new Animated.Value(0)).current;
   
-  // const socket = useRef(io("http://192.168.1.64:5000")).current; // Establish the WebSocket connection
   
 
   useEffect(() => {
@@ -92,17 +91,6 @@ const TeacherHomeScreen: React.FC<Props> = ({ navigation, route }) => {
     }
   };
 
-  // Connect to socket on mount
-  // useEffect(() => {
-  //   socket.on("updateFeed", (newPost: Post) => {
-  //     setPosts((prevPosts) => [newPost, ...prevPosts]); // Prepend the new post to the existing posts
-  //   });
-
-  //   // Clean up the socket connection when the component unmounts
-  //   return () => {
-  //     socket.off("updateFeed"); // Unsubscribe from the event
-  //   };
-  // }, []);
 
 
   // Load posts initially
@@ -143,7 +131,7 @@ const TeacherHomeScreen: React.FC<Props> = ({ navigation, route }) => {
         <TouchableOpacity onPress={() => setSidebarOpen(!isSidebarOpen)}>
           <Ionicons name="menu" size={30} color={Colors.primary} />
         </TouchableOpacity>
-        <Text style={styles.welcomeText}>Events{teacherId}</Text>
+        <Text style={styles.welcomeText}>Events</Text>
         <TouchableOpacity onPress={() => navigation.navigate("AddPostScreen", { teacherClass })}>
           <Ionicons name="add" size={30} color={Colors.primary} />
         </TouchableOpacity>

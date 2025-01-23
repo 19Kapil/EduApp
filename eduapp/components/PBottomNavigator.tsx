@@ -20,8 +20,8 @@ const PBottomNavigator: React.FC<PBottomNavigatorProps> = ({
       case "ParentChatScreen":
         navigation.navigate("ParentChatScreen", { userid, childclass });
         break;
-      case "ParentsRoutineScreen":
-        navigation.navigate("ParentsRoutineScreen");
+      case "ClassRoutineScreen":
+        navigation.navigate("ClassRoutineScreen", { userid, childclass });
         break;
       case "ChildProfileScreen":
         navigation.navigate("ChildProfileScreen", { userid });
@@ -42,7 +42,7 @@ const PBottomNavigator: React.FC<PBottomNavigatorProps> = ({
         <TouchableOpacity onPress={() => navigateTo("ParentChatScreen")}>
           <Ionicons name="chatbubbles" size={35} color={iconColor} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigateTo("ParentsRoutineScreen")}>
+        <TouchableOpacity onPress={() => navigateTo("ClassRoutineScreen")}>
           <Ionicons name="calendar" size={35} color={iconColor} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigateTo("ChildProfileScreen")}>

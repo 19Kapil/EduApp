@@ -4,20 +4,27 @@ const bodyParser = require("body-parser");
 const allRoutes = require("./routes/allRoutes");
 const cors = require("cors");
 const http = require("http");
-const session = require('express-session');
-const crypto = require('crypto');
-const { all } = require("axios");
+const session = require("express-session");
+const crypto = require("crypto");
 const app = express();
 const server = http.createServer(app);
+const { Server } = require("socket.io");
 const PORT = 5000;
-// const io = require("socket.io")(server)
 
+// Initialize Socket.IO
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
 
-// CORS Configuration
+// CORS configuration
 const corsOptions = {
   origin: "*",
   methods: "GET,POST,PUT,DELETE",
-  credentials: true, 
+  credentials: true,
 };
 
 // Middleware
@@ -27,17 +34,14 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false, // Use true if on HTTPS
+      secure: false, 
       httpOnly: true,
     },
   })
 );
-
-app.use(express.json());
 app.use(cors(corsOptions));
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
-
 
 // MySQL Database Connection
 db.connect((err) => {
@@ -48,24 +52,32 @@ db.connect((err) => {
   }
 });
 
-// // Socket.IO setup
-// io.on("connection", (socket) => {
-//   console.log("A user connected");
+// Handle socket.io connections
+io.on("connection", (socket) => {
+  socket.on("joinRoom", (room) => {
+    if (!room) {
+      console.error("Attempted to join an undefined room");
+      return;
+    }
+    socket.join(room);
+  });
+  // message handling
+  socket.on("sendMessage", (message) => {
+    const { room } = message;
 
-//   // Listen for 'newPost' event from the client and broadcast it to all connected clients
-//   socket.on("newPost", (postData) => {
-//     console.log("New post uploaded:", postData);
-//     io.emit("updateFeed", postData); // Emit the new post to all connected clients
-//   });
+    if (!room) {
+      console.error("Room is undefined in the received message:", message);
+      return;
+    }
 
-//   // Handle disconnection
-//   socket.on("disconnect", () => {
-//     console.log("A user disconnected");
-//   });
-// });
+    io.to(room).emit("newMessage", message);
+    console.log(`Message emitted to room: ${room}`);
+  });
 
+  socket.on("disconnect", () => {});
+});
 
- app.use(allRoutes);
+app.use(allRoutes);
 
 // Start the server
 server.listen(PORT, "0.0.0.0", () => {

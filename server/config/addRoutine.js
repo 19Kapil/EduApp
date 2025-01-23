@@ -1,8 +1,8 @@
 const path = require("path");
 
 const addRoutine = (req, res, db) => {
-  const { file: image } = req; // Extract image from request
-  const { teacherClass } = req.query; // Get teacherClass from query
+  const { file: image } = req; 
+  const { teacherClass } = req.query; 
 
   if (!image || !teacherClass)
     return res
