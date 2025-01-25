@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState,useCallback } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -12,14 +12,15 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import FontSize from "../constants/FontSize";
 import Font from "../constants/Font";
+import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RouteProp } from "@react-navigation/native";
 import DefaultAvatar from "../assets/images/teacher.jpeg";
 import axios from "axios";
 
-// Define RootStackParamList with the correct screen names and parameters
+
 type RootStackParamList = {
-  ParentChatScreen: { userid: string; childclass: number };
+  ParentChatScreen: { userid: string; childclass: number; teacherId: number };
   PChat: {
     name: string;
     teacherId: number;
@@ -27,11 +28,12 @@ type RootStackParamList = {
   };
 };
 
-interface teacher {
+interface Teacher {
   teacherName: string;
   avatar?: string;
   teacherClass: number;
   teacherId: number;
+  unreadCount?: number; // Add unreadCount to the Teacher interface
 }
 
 type Props = {
@@ -40,12 +42,26 @@ type Props = {
 };
 
 const ParentChatScreen: React.FC<Props> = ({ navigation, route }) => {
-  const { userid, childclass } = route.params;
-  const [teacher, setTeacher] = useState<teacher[]>([]);
+  const { userid, childclass, teacherId } = route.params;
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchTeacher = async () => {
+  // Fetch unread message count for a specific teacher
+  const fetchUnreadCount = async (teacherId: number) => {
+    try {
+      const response = await axios.get(
+        `http://192.168.1.64:5000/api/unreadcount/${teacherId}/${userid}`
+      );
+      return response.data.unread_count || 0;
+    } catch (err) {
+      console.error("Error fetching unread count:", err);
+      return 0;
+    }
+  };
+
+  // Fetch all teachers for the child's class
+  const fetchTeachers = async () => {
     try {
       setLoading(true);
       setError(null);
@@ -55,19 +71,26 @@ const ParentChatScreen: React.FC<Props> = ({ navigation, route }) => {
       );
 
       if (response.status !== 200) {
-        throw new Error("Failed to fetch students");
+        throw new Error("Failed to fetch teachers");
       }
 
       const data = response.data;
 
-      const teacherList: teacher[] = data.map((item: any) => ({
-        teacherName: item.teacherName,
-        avatar: item.avatar || null,
-        teacherClass: item.teacherClass,
-        teacherId: item.teacherId,
-      }));
+      // Fetch unread counts for each teacher
+      const teacherList: Teacher[] = await Promise.all(
+        data.map(async (item: any) => {
+          const unreadCount = await fetchUnreadCount(item.teacherId);
+          return {
+            teacherName: item.teacherName,
+            avatar: item.avatar || null,
+            teacherClass: item.teacherClass,
+            teacherId: item.teacherId,
+            unreadCount, // Add unreadCount to the teacher object
+          };
+        })
+      );
 
-      setTeacher(teacherList);
+      setTeachers(teacherList);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -79,15 +102,28 @@ const ParentChatScreen: React.FC<Props> = ({ navigation, route }) => {
     }
   };
 
-  useEffect(() => {
-    fetchTeacher();
-  }, [childclass]);
+  // Mark messages as read when a parent opens a chat with a teacher
+  const markMessagesAsRead = async (teacherId: number) => {
+    try {
+      await axios.put(
+        `http://192.168.1.64:5000/api/markasread/${teacherId}/${userid}`
+      );
+    } catch (err) {
+      console.error("Error marking messages as read:", err);
+    }
+  };
 
+    // Reload data when the screen comes into focus
+    useFocusEffect(
+      useCallback(() => {
+        fetchTeachers(); // Fetch teachers when the screen is focused
+      }, [childclass]) // Add dependencies if needed
+    );
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#000000" />
-        <Text>Loading Students...</Text>
+        <Text>Loading Teachers...</Text>
       </View>
     );
   }
@@ -96,7 +132,7 @@ const ParentChatScreen: React.FC<Props> = ({ navigation, route }) => {
     return (
       <View style={styles.loadingContainer}>
         <Text>Error: {error}</Text>
-        <TouchableOpacity onPress={fetchTeacher}>
+        <TouchableOpacity onPress={fetchTeachers}>
           <Text style={styles.retryText}>Retry</Text>
         </TouchableOpacity>
       </View>
@@ -112,16 +148,17 @@ const ParentChatScreen: React.FC<Props> = ({ navigation, route }) => {
         <Text style={styles.headerText}>Chat</Text>
       </View>
       <ScrollView>
-        {teacher.map((teacher) => (
+        {teachers.map((teacher) => (
           <TouchableOpacity
             key={teacher.teacherId}
-            onPress={() =>
+            onPress={() => {
+              markMessagesAsRead(teacher.teacherId); // Mark messages as read
               navigation.navigate("PChat", {
                 name: teacher.teacherName,
                 teacherId: teacher.teacherId,
-                userid: userid
-              })
-            }
+                userid: userid,
+              });
+            }}
           >
             <View style={styles.textContainer}>
               <Image
@@ -130,7 +167,16 @@ const ParentChatScreen: React.FC<Props> = ({ navigation, route }) => {
                 }
                 style={styles.avatar}
               />
-              <Text style={styles.studentName}>{teacher.teacherName}---class    { childclass}</Text>
+              <Text style={styles.studentName}>
+                {`${teacher.teacherName} --- class ${childclass}`}
+              </Text>
+              {(teacher.unreadCount || 0) > 0 && (
+                <View style={styles.unreadCountContainer}>
+                  <Text style={styles.unreadCountText}>
+                    {teacher.unreadCount}
+                  </Text>
+                </View>
+              )}
             </View>
           </TouchableOpacity>
         ))}
@@ -183,6 +229,18 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: "blue",
     textDecorationLine: "underline",
+  },
+  unreadCountContainer: {
+    backgroundColor: "red",
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    marginLeft: 10,
+  },
+  unreadCountText: {
+    color: "white",
+    fontSize: 10,
+    fontWeight: "bold",
   },
 });
 

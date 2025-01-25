@@ -2,9 +2,9 @@ import React from "react";
 import { View, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../types"; // Make sure this is imported from the correct location
+import { RootStackParamList } from "../types"; 
 
-// Define the BottomNavigator Props with navigation type
+
 type BottomNavigatorProps = {
   navigation: NativeStackNavigationProp<RootStackParamList>;
   teacherClass: number;

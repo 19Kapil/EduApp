@@ -8,17 +8,19 @@ type PBottomNavigatorProps = {
   navigation:NativeStackNavigationProp<RootStackParamList>;
   userid: string;
   childclass: string;
+  teacherId: number;
 };
 
 const PBottomNavigator: React.FC<PBottomNavigatorProps> = ({
   navigation,
   userid,
   childclass,
+  teacherId,
 }) => {
   const navigateTo = (screen: keyof RootStackParamList) => {
     switch (screen) {
       case "ParentChatScreen":
-        navigation.navigate("ParentChatScreen", { userid, childclass });
+        navigation.navigate("ParentChatScreen", { userid, childclass, teacherId });
         break;
       case "ClassRoutineScreen":
         navigation.navigate("ClassRoutineScreen", { userid, childclass });
