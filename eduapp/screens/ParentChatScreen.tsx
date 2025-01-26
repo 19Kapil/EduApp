@@ -167,7 +167,7 @@ const ParentChatScreen: React.FC<Props> = ({ navigation, route }) => {
                 }
                 style={styles.avatar}
               />
-              <Text style={styles.studentName}>
+              <Text style={styles.teacherName}>
                 {`${teacher.teacherName} --- class ${childclass}`}
               </Text>
               {(teacher.unreadCount || 0) > 0 && (
@@ -195,6 +195,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
+    
   },
   headerText: {
     fontSize: FontSize.large,
@@ -205,12 +206,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 10,
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    backgroundColor: "#f9f9f9",
+    borderColor: "#e7e7e4",
+    borderRadius: 15,
+    backgroundColor: "#f3f3f1",
     marginVertical: 5,
+    width: "100%",
   },
-  studentName: {
+  teacherName: {
     fontFamily: Font["poppins-bold"],
     fontSize: FontSize.medium,
     marginLeft: 10,
@@ -221,8 +223,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   avatar: {
-    width: 25,
-    height: 25,
+    width: 40,
+    height: 40,
     borderRadius: 25,
   },
   retryText: {

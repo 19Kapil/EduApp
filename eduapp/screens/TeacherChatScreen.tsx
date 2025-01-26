@@ -51,11 +51,12 @@ const TeacherChatScreen: React.FC<Props> = ({ navigation, route }) => {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
 
   const fetchUnreadCount = async (userid: string) => {
     try {
       const response = await axios.get(
-        `http://192.168.1.64:5000/api/unreadcount/${teacherId}/${userid}`
+        `http://192.168.1.64:5000/api/unreadcount/${userid}/${teacherId}`
       );
       return response.data.unread_count || 0;
     } catch (err) {
@@ -90,6 +91,7 @@ const TeacherChatScreen: React.FC<Props> = ({ navigation, route }) => {
             registration_number: item.registration_number,
             userid: item.userid || 0,
             unreadCount,
+           
           };
         })
       );
@@ -201,15 +203,16 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: FontSize.large,
     fontFamily: Font["poppins-bold"],
+    
   },
   textContainer: {
     flexDirection: "row",
     alignItems: "center",
     padding: 10,
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    backgroundColor: "#f9f9f9",
+    borderColor: "#e7e7e4",
+    borderRadius: 25,
+    backgroundColor: "#f3f3f1",
     marginVertical: 5,
   },
   studentName: {

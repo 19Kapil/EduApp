@@ -145,7 +145,7 @@ const PChat: React.FC<Props> = ({ route, navigation }) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={35} color="black" />
+          <Ionicons name="chevron-back" size={50} marginLeft={12} color="black" />
         </TouchableOpacity>
         <View style={styles.titleContainer}>
           <Image
@@ -184,7 +184,7 @@ const PChat: React.FC<Props> = ({ route, navigation }) => {
             );
           })
         ) : (
-          <Text>No messages yet.</Text>
+          <Text style={styles.noMessagesText}>No messages yet.</Text>
         )}
       </ScrollView>
 
@@ -206,15 +206,24 @@ const PChat: React.FC<Props> = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 20, marginTop: 30 },
-  header: { flexDirection: "row", alignItems: "center" },
+  container: { flex: 1, marginTop: 10 },
+  header: { flexDirection: "row",
+    alignItems: "center",
+    borderColor: "#e7e7e4",
+    borderRadius:50,
+    backgroundColor: "#f3f3f1",                  
+  },
+
   titleContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginLeft: 10,
+    borderRadius: 25,
+    backgroundColor: "#f0f0f0",
+    padding: 10,
+    
   },
-  title: { fontSize: 20, fontWeight: "bold" },
-  avatar: { width: 40, height: 40, borderRadius: 20 },
+  title: { fontSize: 20, fontWeight: "bold", },
+  avatar: { width: 50, height: 50, borderRadius: 20, },
   chatContainer: { flexGrow: 1, paddingBottom: 20 },
   messageContainer: {
     padding: 10,
@@ -225,12 +234,13 @@ const styles = StyleSheet.create({
   sentMessage: {
     alignSelf: "flex-end",
     backgroundColor: "#007bff",
+    marginRight: 10,
   },
   receivedMessage: {
     alignSelf: "flex-start",
     backgroundColor: "#f0f0f0",
     marginLeft: 10,
-    width: "50%",
+   
   },
   messageText: { fontSize: 16 },
   inputContainer: {
@@ -261,6 +271,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  // errorText: {  fontSize: 18,color: "red", marginVertical: 10, textAlign: "center"  },
+  noMessagesText: {  fontSize: 20,color: "black", marginVertical: 250, textAlign: "center" },
 });
 
 export default PChat;
