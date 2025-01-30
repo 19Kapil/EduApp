@@ -2,6 +2,7 @@ const express = require("express");
 const db = require("./config/db");
 const bodyParser = require("body-parser");
 const allRoutes = require("./routes/allRoutes");
+//const agora = require("./config/agora");
 const cors = require("cors");
 const http = require("http");
 const session = require("express-session");
@@ -77,7 +78,9 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {});
 });
 
+
 app.use(allRoutes);
+// app.use("/agora", agora);
 
 // Start the server
 server.listen(PORT, "0.0.0.0", () => {

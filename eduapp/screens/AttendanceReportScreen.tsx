@@ -1,5 +1,12 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+  TouchableOpacity,
+} from "react-native";
 import axios from "axios";
 import { Ionicons } from "@expo/vector-icons";
 import { RouteProp } from "@react-navigation/native";
@@ -14,17 +21,21 @@ type RootStackParamList = {
   };
 };
 
-const AttendanceReportScreen: React.FC<{ route: RouteProp<RootStackParamList, "AttendanceReportScreen"> }> = ({ route }) => {
+const AttendanceReportScreen: React.FC<{
+  route: RouteProp<RootStackParamList, "AttendanceReportScreen">;
+}> = ({ route }) => {
   const { registration_number, name } = route.params;
   const navigation = useNavigation();
   const [attendanceData, setAttendanceData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   const fetchAttendanceData = useCallback(async () => {
-    setLoading(true); 
+    setLoading(true);
     try {
-      const response = await axios.get(`http://192.168.1.64:5000/api/attendance/${registration_number}`);
-      setAttendanceData(response.data.length ? response.data : []);  // Handle no data
+      const response = await axios.get(
+        `http://192.168.1.64:5000/api/attendance/${registration_number}`
+      );
+      setAttendanceData(response.data.length ? response.data : []); // Handle no data
     } catch (error) {
       console.error("Error fetching attendance data:", error);
     } finally {
@@ -51,11 +62,13 @@ const AttendanceReportScreen: React.FC<{ route: RouteProp<RootStackParamList, "A
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-              <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Ionicons name="chevron-back" size={45} color="black" />
-              </TouchableOpacity>
-              <Text style={styles.headerText}>{name}'s Attendance Sheet</Text>
-            </View>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="chevron-back" size={45} color="black" />
+        </TouchableOpacity>
+        <View style={styles.titleContainer}>
+          <Text style={styles.headerText}>{name}'s Attendance Sheet</Text>
+        </View>
+      </View>
 
       {attendanceData.length === 0 ? (
         <Text style={styles.noDataText}>No attendance data available.</Text>
@@ -67,21 +80,28 @@ const AttendanceReportScreen: React.FC<{ route: RouteProp<RootStackParamList, "A
           </View>
           {attendanceData.map((record, index) => (
             <View style={styles.tableRow} key={index}>
-              <Text style={styles.tableCell}>{formatDate(record.attendance_date)}</Text>
+              <Text style={styles.tableCell}>
+                {formatDate(record.attendance_date)}
+              </Text>
               <Text
                 style={[
                   styles.tableCell,
                   {
                     color:
-                      record.status === "P" ? "green"  :
-                      record.status === "A" ? "red" : "darkorange",
+                      record.status === "P"
+                        ? "green"
+                        : record.status === "A"
+                        ? "red"
+                        : "darkorange",
                   },
                 ]}
               >
-                {record.status === "P" ? "Present" :
-                record.status === "A" ? "Absent" : "Late"}
+                {record.status === "P"
+                  ? "Present"
+                  : record.status === "A"
+                  ? "Absent"
+                  : "Late"}
               </Text>
-
             </View>
           ))}
         </View>
@@ -93,23 +113,29 @@ const AttendanceReportScreen: React.FC<{ route: RouteProp<RootStackParamList, "A
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 20,
     marginTop: 30,
-    
+    marginBottom: 30,
   },
-  backButton: {
-    marginTop: 16,
-  },
+
   header: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
+    position: "relative",
+    paddingHorizontal: 10,
   },
 
   headerText: {
-        fontSize: 16,
-        fontFamily: Font["poppins-bold"],
-        marginLeft: 10,
-      },
+    fontSize: FontSize.medium,
+    fontFamily: Font["poppins-bold"],
+  },
+
+  titleContainer: {
+    flex: 1,
+    alignItems: "center",
+  },
+
   table: {
     width: "100%",
     borderWidth: 1,

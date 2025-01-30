@@ -29,10 +29,16 @@ const AddUser: React.FC<Props> = ({ navigation,route }) => {
   const [successMessage, setSuccessMessage] = useState<string>("");
 
   const handleAddUser = async () => {
-    if (!userid || !password) {
-      Alert.alert("Error", "Please provide both userid and password!");
-      return;
-    }
+    const phoneRegex = /^[0-9]{10}$/;
+  if (!phoneRegex.test(userid)) {
+    Alert.alert("Invalid Phone Number", "User ID must be a 10-digit phone number.");
+    return;
+  }
+
+  if (!password) {
+    Alert.alert("Error", "Please enter a password!");
+    return;
+  }
   
     setIsLoading(true);
     setSuccessMessage("");
@@ -94,7 +100,7 @@ const AddUser: React.FC<Props> = ({ navigation,route }) => {
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
-          placeholder="User ID"
+          placeholder=" Phone No. as User ID"
           value={userid}
           onChangeText={setUserid}
         />

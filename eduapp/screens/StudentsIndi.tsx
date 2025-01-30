@@ -1,5 +1,14 @@
-import React, { useState,}from "react";
-import { View, Text, StyleSheet, Image, ScrollView, SafeAreaView, TouchableOpacity,Modal } from "react-native";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ScrollView,
+  SafeAreaView,
+  TouchableOpacity,
+  Modal,
+} from "react-native";
 import { RouteProp } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
@@ -9,11 +18,10 @@ import FontSize from "../constants/FontSize";
 import DefaultAvatar from "../assets/images/student.jpeg";
 import { useFocusEffect } from "@react-navigation/native";
 
-
 type RootStackParamList = {
   StudentsIndiScreen: {
     name: string;
-    avatar: string; 
+    avatar: string;
     details: {
       address: string;
       age: number;
@@ -28,13 +36,13 @@ type RootStackParamList = {
   ReportCardScreen: {
     studentName: string;
     studentrollNo: number;
-    
   };
-
-
 };
 
-type StudentsIndiScreenRouteProp = RouteProp<RootStackParamList, "StudentsIndiScreen">;
+type StudentsIndiScreenRouteProp = RouteProp<
+  RootStackParamList,
+  "StudentsIndiScreen"
+>;
 
 interface StudentsIndiScreenProps {
   route: StudentsIndiScreenRouteProp;
@@ -46,7 +54,10 @@ type DetailItemProps = {
   value: string | number;
 };
 
-const StudentsIndiScreen: React.FC<StudentsIndiScreenProps> = ({ route, navigation }) => {
+const StudentsIndiScreen: React.FC<StudentsIndiScreenProps> = ({
+  route,
+  navigation,
+}) => {
   const { name, avatar, details } = route.params;
   const [isModalVisible, setModalVisible] = useState(false);
 
@@ -56,37 +67,50 @@ const StudentsIndiScreen: React.FC<StudentsIndiScreenProps> = ({ route, navigati
     }, [])
   );
 
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back" size={45} color="black" />
         </TouchableOpacity>
-        <Text style={styles.headerText}>{name}'s Profile</Text>
+        <View style={styles.titleContainer}>
+          <Text style={styles.headerText}>{name}'s Profile</Text>
+        </View>
         <TouchableOpacity
-                  onPress={() => setModalVisible(true)}
-                  style={styles.dotsButton}
-                >
-                  <Ionicons name="ellipsis-horizontal" size={30} color="black" />
-                </TouchableOpacity>
+          onPress={() => setModalVisible(true)}
+          
+        >
+          <Ionicons name="ellipsis-horizontal" size={30} color="black" />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.head}>
-        <Image source={avatar ? { uri: avatar } : DefaultAvatar} style={styles.avatar} />
+        <Image
+          source={avatar ? { uri: avatar } : DefaultAvatar}
+          style={styles.avatar}
+        />
         <Text style={styles.studentName}>{name}</Text>
       </View>
       <TouchableOpacity
         style={styles.reportIcon}
-        onPress={() => navigation.navigate("ReportCardScreen", {  studentName: name, studentRollNo: details.rollNo, teacherClass: details.class })}
+        onPress={() =>
+          navigation.navigate("ReportCardScreen", {
+            studentName: name,
+            studentRollNo: details.rollNo,
+            teacherClass: details.class,
+          })
+        }
       >
-        <Ionicons  name="document" color={"black"} size={20} />
+        <Ionicons name="document" color={"black"} size={20} />
       </TouchableOpacity>
 
       <View style={styles.profileContainer}>
         <ScrollView style={styles.detailsScroll}>
           <View style={styles.detailsContainer}>
-            <DetailItem label="Registration No." value={details.registration_number} />
+            <DetailItem
+              label="Registration No."
+              value={details.registration_number}
+            />
             <DetailItem label="Age" value={details.age} />
             <DetailItem label="Class" value={details.class} />
             <DetailItem label="Roll No." value={details.rollNo} />
@@ -94,27 +118,31 @@ const StudentsIndiScreen: React.FC<StudentsIndiScreenProps> = ({ route, navigati
             <DetailItem label="Father's Name" value={details.fatherName} />
             <DetailItem label="Mother's Name" value={details.motherName} />
             <DetailItem label="Address" value={details.address} />
-
           </View>
         </ScrollView>
         <Modal transparent={true} visible={isModalVisible} animationType="fade">
-                <View style={styles.modalOverlay}>
-                  <View style={styles.modalContainer}>
-                    <TouchableOpacity
-                      style={styles.modalOption}
-                      onPress={() => navigation.navigate("AttendanceReportScreen", {  registration_number: details.registration_number, name: name })}
-                    >
-                      <Text>View Attendance</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.modalOption, styles.cancelOption]}
-                      onPress={() => setModalVisible(false)}
-                    >
-                      <Text>Cancel</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </Modal>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <TouchableOpacity
+                style={styles.modalOption}
+                onPress={() =>
+                  navigation.navigate("AttendanceReportScreen", {
+                    registration_number: details.registration_number,
+                    name: name,
+                  })
+                }
+              >
+                <Text>View Attendance</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalOption, styles.cancelOption]}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </View>
       <StatusBar style="auto" />
     </SafeAreaView>
@@ -128,11 +156,8 @@ const DetailItem: React.FC<DetailItemProps> = ({ label, value }) => (
   </View>
 );
 
-
 const styles = StyleSheet.create({
-  dotsButton: {
-    marginLeft: 10,
-  },
+  
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
@@ -154,6 +179,11 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: "#ccc",
   },
+  titleContainer: {
+    flex: 1, 
+    alignItems: "center",
+  },
+  
   container: {
     flex: 1,
     paddingHorizontal: 20,
@@ -164,16 +194,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    position: "relative",
+    paddingHorizontal: 10,
   },
   headerText: {
     fontSize: FontSize.large,
     fontFamily: Font["poppins-bold"],
-    marginLeft: 10,
   },
+
   head: {
     alignItems: "center",
     marginTop: 20,
   },
+
   profileContainer: {},
   studentName: {
     marginTop: 10,

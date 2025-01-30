@@ -26,7 +26,7 @@ const getStudents = (req, res, db) => {
     if (!childclass) {
       return res.status(400).json({ error: "Class parameter is required" });
     }
-    const query = `SELECT teacherName, teacherId FROM teachers WHERE teacherClass = ?`;
+    const query = `SELECT teacherName, teacherId,teacherPhNo FROM teachers WHERE teacherClass = ?`;
     db.query(query, [childclass], (err, results) => {
       if (err) {
         console.error("Error fetching teachers:", err);

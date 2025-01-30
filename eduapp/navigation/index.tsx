@@ -29,6 +29,7 @@ import ReportCardScreen from "../screens/ReportCardScreen";
 import AttendanceScreen from "../screens/AttendanceScreen";
 import AttendanceReportScreen from "../screens/AttendanceReportScreen";
 import ClassRoutineScreen from "../screens/ClassRoutineScreen";
+
 const theme = {
   ...DefaultTheme,
   colors: {
@@ -72,7 +73,7 @@ function RootNavigator() {
       <Stack.Screen name="AddScreen" component={AddScreen} />
       <Stack.Screen name="ReportCardScreen" component={ReportCardScreen} />
       <Stack.Screen name="AttendanceReportScreen" component={AttendanceReportScreen} />
-
+      
     
 
       <Stack.Screen

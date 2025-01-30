@@ -14,7 +14,6 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
-//import io from "socket.io-client"; // Import Socket.IO client
 import Colors from "../constants/Colors";
 import Sidebar from "../components/SIdebar";
 import BottomNavigator from "../components/BottomNavigator";

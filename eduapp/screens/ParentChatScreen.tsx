@@ -25,6 +25,7 @@ type RootStackParamList = {
     name: string;
     teacherId: number;
     userid: string;
+    teacherPhNo: string;
   };
 };
 
@@ -33,6 +34,7 @@ interface Teacher {
   avatar?: string;
   teacherClass: number;
   teacherId: number;
+  teacherPhNo: string;
   unreadCount?: number; // Add unreadCount to the Teacher interface
 }
 
@@ -85,6 +87,7 @@ const ParentChatScreen: React.FC<Props> = ({ navigation, route }) => {
             avatar: item.avatar || null,
             teacherClass: item.teacherClass,
             teacherId: item.teacherId,
+            teacherPhNo: item.teacherPhNo,
             unreadCount, // Add unreadCount to the teacher object
           };
         })
@@ -157,6 +160,7 @@ const ParentChatScreen: React.FC<Props> = ({ navigation, route }) => {
                 name: teacher.teacherName,
                 teacherId: teacher.teacherId,
                 userid: userid,
+                teacherPhNo: teacher.teacherPhNo,
               });
             }}
           >
@@ -168,7 +172,7 @@ const ParentChatScreen: React.FC<Props> = ({ navigation, route }) => {
                 style={styles.avatar}
               />
               <Text style={styles.teacherName}>
-                {`${teacher.teacherName} --- class ${childclass}`}
+                {`${teacher.teacherName}`}
               </Text>
               {(teacher.unreadCount || 0) > 0 && (
                 <View style={styles.unreadCountContainer}>

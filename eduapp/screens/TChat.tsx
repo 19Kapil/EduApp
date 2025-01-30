@@ -9,10 +9,13 @@ import {
   TextInput,
   ScrollView,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import { io, Socket } from "socket.io-client";
+import { Linking } from "react-native";
+import moment from "moment";
 
 interface ChatMessage {
   message: string;
@@ -74,6 +77,7 @@ const TChat: React.FC<Props> = ({ route, navigation }) => {
             data.messages.map((msg: ChatMessage) => ({
               ...msg,
               isSentByTeacher: msg.senderid === teacherId,
+              date: msg.date,
             }))
           );
         }
@@ -94,7 +98,11 @@ const TChat: React.FC<Props> = ({ route, navigation }) => {
       setChatMessages((prevMessages) => {
         return [
           ...prevMessages,
-          { ...msg, isSentByTeacher: msg.senderid === teacherId },
+          {
+            ...msg,
+            isSentByTeacher: msg.senderid == teacherId,  
+            date: msg.date,
+          },
         ];
       });
     });
@@ -110,7 +118,7 @@ const TChat: React.FC<Props> = ({ route, navigation }) => {
       const newMessage: ChatMessage = {
         message: message.trim(),
         senderid: teacherId,
-        receiverid: userid ,
+        receiverid: userid,
         date: new Date().toISOString(),
         room: `${[teacherId, userid].sort().join("-")}`,
       };
@@ -144,12 +152,35 @@ const TChat: React.FC<Props> = ({ route, navigation }) => {
     );
   }
 
+  const formatTime = (timestamp: string) => {
+    return moment(timestamp).format("hh:mm A"); 
+  };
+
+  // Make Phone Call
+  const makePhoneCall = (userid: string) => {
+    const url = `tel:${userid}`;
+    Linking.canOpenURL(url)
+      .then((supported) => {
+        if (supported) {
+          Linking.openURL(url);
+        } else {
+          Alert.alert("Error", "Phone dialer not supported on this device");
+        }
+      })
+      .catch((err) => console.error("Error opening dialer", err));
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={50} marginLeft={12} color="black" />
+          <Ionicons
+            name="chevron-back"
+            size={50}
+            marginLeft={12}
+            color="black"
+          />
         </TouchableOpacity>
         <View style={styles.titleContainer}>
           <Image
@@ -158,6 +189,16 @@ const TChat: React.FC<Props> = ({ route, navigation }) => {
           />
           <Text style={styles.title}>{name}'s Parent</Text>
         </View>
+        {!error && (
+          <TouchableOpacity onPress={() => makePhoneCall(`${userid}`)}>
+            <Ionicons
+              name="call"
+              size={30}
+              color="blue"
+              style={styles.phoneIcon}
+            />
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Chat Messages */}
@@ -178,6 +219,7 @@ const TChat: React.FC<Props> = ({ route, navigation }) => {
                   isSentByTeacher ? styles.sentMessage : styles.receivedMessage,
                 ]}
               >
+                <View style={styles.messageContent}>
                 <Text
                   style={[
                     styles.messageText,
@@ -185,12 +227,16 @@ const TChat: React.FC<Props> = ({ route, navigation }) => {
                   ]}
                 >
                   {msg.message}
+                  <Text style={styles.timestamp}>
+                  {"\t   "}
+                    {formatTime(msg.date)}</Text>
                 </Text>
+                </View>
               </View>
             );
           })
         ) : (
-          <Text  style={styles.noMessagesText}>No messages yet!!!!</Text>
+          <Text style={styles.noMessagesText}>No messages yet!!!!</Text>
         )}
       </ScrollView>
 
@@ -216,35 +262,71 @@ const TChat: React.FC<Props> = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1,  marginTop: 10 },
-  header: { flexDirection: "row", alignItems: "center",backgroundColor: "#f0f0f0",borderRadius:50,},
+  container: { flex: 1, marginTop: 10 },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 50,
+  },
+
   titleContainer: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 25,
-    backgroundColor: "#f0f0f0",
-    padding: 10,
+    flex: 1,
+    justifyContent: "center",
   },
-  title: { fontSize: 20, fontWeight: "bold", marginTop:10  },
-  avatar: { width: 50, height: 50, borderRadius: 20 },
+
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginLeft: 10,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
   chatContainer: { flexGrow: 1, paddingBottom: 20 },
+
   messageContainer: {
     padding: 10,
     marginVertical: 5,
     borderRadius: 10,
     maxWidth: "80%",
+    justifyContent: "space-around",
   },
+
+  messageContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+   
+  },
+
   sentMessage: {
     alignSelf: "flex-end",
     backgroundColor: "#007bff",
-    marginRight: 10,
+    marginRight: 13,
   },
   receivedMessage: {
     alignSelf: "flex-start",
     backgroundColor: "#f0f0f0",
-    marginLeft: 10,
+    marginLeft: 15,
   },
-  messageText: { fontSize: 16 },
+  messageText: {
+    fontSize: 18,
+    paddingRight: 10,
+    
+  },
+
+  timestamp: {
+    fontSize: 9,
+    
+  },
+
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -263,6 +345,7 @@ const styles = StyleSheet.create({
   },
   icon: { color: "blue", marginRight: 10 },
   sendButtonText: { color: "white", fontSize: 16, fontWeight: "bold" },
+
   sendButton: {
     backgroundColor: "blue",
     paddingHorizontal: 12,
@@ -270,8 +353,20 @@ const styles = StyleSheet.create({
     borderRadius: 18,
   },
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
-  errorText: {  fontSize: 18,color: "red", marginVertical: 10, textAlign: "center"  },
-  noMessagesText: {  fontSize: 20,color: "black", marginVertical: 250, textAlign: "center" },
+  errorText: {
+    fontSize: 18,
+    color: "red",
+    marginVertical: 10,
+    textAlign: "center",
+  },
+  noMessagesText: {
+    fontSize: 20,
+    color: "black",
+    marginVertical: 250,
+    textAlign: "center",
+  },
+  phoneIcon: { marginLeft: 30, marginTop: 5 },
+  
 });
 
 export default TChat;

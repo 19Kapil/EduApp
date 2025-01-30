@@ -19,8 +19,7 @@ export type RootStackParamList = {
   TeacherHomeScreen: { teacherClass: string, teacherId: number };
   AddScreen: { userid: string };
   TeacherChatScreen: undefined;
-  //ParentsChatScreen: undefined;
-  ParentsRoutineScreen: undefined;
+   ParentsRoutineScreen: undefined;
   StudentListScreen: { teacherClass: string }; 
   ChildProfileScreen: {userid: string};
   Chat: { name: string; registration_number: number };

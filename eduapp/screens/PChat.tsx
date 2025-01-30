@@ -9,10 +9,13 @@ import {
   TextInput,
   ScrollView,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import { io, Socket } from "socket.io-client";
+import { Linking } from "react-native";
+import moment from "moment";
 
 interface ChatMessage {
   message: string;
@@ -29,6 +32,7 @@ interface Props {
       name: string;
       teacherId: string;
       userid: string;
+      teacherPhNo: string;
     };
   };
   navigation: any;
@@ -45,10 +49,11 @@ interface ClientToServerEvents {
 }
 
 const PChat: React.FC<Props> = ({ route, navigation }) => {
-  const { name, teacherId, userid } = route.params;
+  const { name, teacherId, userid, teacherPhNo } = route.params;
   const [message, setMessage] = useState<string>("");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
 
   const socket: Socket<ServerToClientEvents, ClientToServerEvents> = useRef(
@@ -71,6 +76,7 @@ const PChat: React.FC<Props> = ({ route, navigation }) => {
             data.messages.map((msg) => ({
               ...msg,
               isSentByParent: msg.senderid === userid,
+              date: msg.date,
             }))
           );
         }
@@ -141,11 +147,34 @@ const PChat: React.FC<Props> = ({ route, navigation }) => {
     );
   }
 
+  const formatTime = (timestamp: string) => {
+    return moment(timestamp).format("hh:mm A");
+  };
+
+  // Make Phone Call
+  const makePhoneCall = (teacherPhNo: string) => {
+    const url = `tel:${teacherPhNo}`;
+    Linking.canOpenURL(url)
+      .then((supported) => {
+        if (supported) {
+          Linking.openURL(url);
+        } else {
+          Alert.alert("Error", "Phone dialer not supported on this device");
+        }
+      })
+      .catch((err) => console.error("Error opening dialer", err));
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={50} marginLeft={12} color="black" />
+          <Ionicons
+            name="chevron-back"
+            size={50}
+            marginLeft={12}
+            color="black"
+          />
         </TouchableOpacity>
         <View style={styles.titleContainer}>
           <Image
@@ -154,6 +183,16 @@ const PChat: React.FC<Props> = ({ route, navigation }) => {
           />
           <Text style={styles.title}>{name}</Text>
         </View>
+        {!error && (
+          <TouchableOpacity onPress={() => makePhoneCall(`${teacherPhNo}`)}>
+            <Ionicons
+              name="call"
+              size={30}
+              color="blue"
+              style={styles.phoneIcon}
+            />
+          </TouchableOpacity>
+        )}
       </View>
 
       <ScrollView
@@ -163,7 +202,7 @@ const PChat: React.FC<Props> = ({ route, navigation }) => {
       >
         {chatMessages.length > 0 ? (
           chatMessages.map((msg, idx) => {
-            const isSentByParent = msg.senderid === userid;
+            const isSentByParent = msg.senderid == userid;
             return (
               <View
                 key={idx}
@@ -179,6 +218,10 @@ const PChat: React.FC<Props> = ({ route, navigation }) => {
                   ]}
                 >
                   {msg.message}
+                  <Text style={styles.timestamp}>
+                    {"\t \t"}
+                    {formatTime(msg.date)}
+                  </Text>
                 </Text>
               </View>
             );
@@ -207,23 +250,33 @@ const PChat: React.FC<Props> = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, marginTop: 10 },
-  header: { flexDirection: "row",
+  header: {
+    flexDirection: "row",
     alignItems: "center",
-    borderColor: "#e7e7e4",
-    borderRadius:50,
-    backgroundColor: "#f3f3f1",                  
+    justifyContent: "space-between",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 50,
   },
 
   titleContainer: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 25,
-    backgroundColor: "#f0f0f0",
-    padding: 10,
-    
+    flex: 1,
+    justifyContent: "center",
   },
-  title: { fontSize: 20, fontWeight: "bold", },
-  avatar: { width: 50, height: 50, borderRadius: 20, },
+
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginLeft: 10,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
   chatContainer: { flexGrow: 1, paddingBottom: 20 },
   messageContainer: {
     padding: 10,
@@ -234,13 +287,12 @@ const styles = StyleSheet.create({
   sentMessage: {
     alignSelf: "flex-end",
     backgroundColor: "#007bff",
-    marginRight: 10,
+    marginRight: 13,
   },
   receivedMessage: {
     alignSelf: "flex-start",
     backgroundColor: "#f0f0f0",
-    marginLeft: 10,
-   
+    marginLeft: 15,
   },
   messageText: { fontSize: 16 },
   inputContainer: {
@@ -250,6 +302,11 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#ccc",
   },
+
+  timestamp: {
+    fontSize: 9,
+  },
+
   input: {
     flex: 1,
     marginRight: 10,
@@ -272,7 +329,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   // errorText: {  fontSize: 18,color: "red", marginVertical: 10, textAlign: "center"  },
-  noMessagesText: {  fontSize: 20,color: "black", marginVertical: 250, textAlign: "center" },
+  noMessagesText: {
+    fontSize: 20,
+    color: "black",
+    marginVertical: 250,
+    textAlign: "center",
+  },
+  phoneIcon: { marginLeft: 30, marginTop: 5 },
 });
 
 export default PChat;
