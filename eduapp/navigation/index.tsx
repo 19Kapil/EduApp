@@ -20,7 +20,7 @@ import StudentsIndiScreen from "../screens/StudentsIndi";
 import AddPostScreen from "../screens/AddPost";
 import CallScreen from "../screens/CallScreen";
 import TCallScreen from "../screens/TCallScreen";
-import CourseProgress from "../screens/CourseProgressScreen";
+import CourseProgressScreen from "../screens/CourseProgressScreen";
 import ecaScreen from "../screens/ecaScreen";
 import CcaScreen from "../screens/ccaScreen";
 import AddScreen from "../screens/AddScreen";
@@ -67,7 +67,7 @@ function RootNavigator() {
       <Stack.Screen name="ClassRoutineScreen" component={ClassRoutineScreen} /> 
       <Stack.Screen name="YearlyPlanScreen" component={YearlyPlanScreen} />
       <Stack.Screen name="TCallScreen" component={TCallScreen} />
-      <Stack.Screen name="CourseProgressScreen" component={CourseProgress} />
+      <Stack.Screen name="CourseProgressScreen" component={CourseProgressScreen} />
       <Stack.Screen name="ecaScreen" component={ecaScreen} />
       <Stack.Screen name="CcaScreen" component={CcaScreen} />
       <Stack.Screen name="AddScreen" component={AddScreen} />

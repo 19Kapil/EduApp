@@ -88,7 +88,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const handleCourseProgressPress = () => {
-    navigation.navigate("CourseProgressScreen");
+    navigation.navigate("CourseProgressScreen" , { teacherClass, childclass });
   };
 
   const handleECAPress = () => {

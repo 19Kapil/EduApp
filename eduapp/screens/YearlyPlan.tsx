@@ -43,6 +43,7 @@ const YearlyPlanScreen: React.FC<Props> = ({ navigation }) => {
     </View>
   );
   const subjects: string[] = [
+    "Choose a Subject",
     "Math",
     "Science",
     "English",

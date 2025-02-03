@@ -1,48 +1,66 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
   Text,
   View,
   TouchableOpacity,
   StyleSheet,
-  FlatList,
-  Dimensions,
   ScrollView,
 } from "react-native";
-import Colors from "../constants/Colors";
-import Font from "../constants/Font";
-import { NavigationProp } from "@react-navigation/native";
-import { RootStackParamList } from "../types";
+import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import FontSize from "../constants/FontSize";
-import { Ionicons } from "@expo/vector-icons";
 import { courseData, CourseData } from "../data/yearlydata";
-
-const screenHeight = Dimensions.get("window").height;
-const headerHeightPercentage = 10;
-const headerHeight = (screenHeight * headerHeightPercentage) / 100;
+import Colors from "../constants/Colors";
+import Font from "../constants/Font";
 
 type Props = {
-  navigation: NavigationProp<RootStackParamList>;
+  navigation: any;
+  route: any;
 };
 
-const YearlyPlanScreen: React.FC<Props> = ({ navigation }) => {
-  const [selectedSubject, setSelectedSubject] = useState<string>("");
+interface Subject {
+  id: string;
+  subject_name: string;
+}
+
+const CourseProgressScreen: React.FC<Props> = ({ navigation, route }) => {
+  const { teacherClass } = route.params;
+  const { childclass } = route.params;
+  const classToFetch = teacherClass || childclass;
+
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [selectedSubject, setSelectedSubject] = useState<string>(""); // Initialize with an empty string
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+
+  useEffect(() => {
+    if (!teacherClass && !childclass) {
+      setError("Class not found.");
+      return;
+    }
+
+    const fetchSubjects = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(
+          `http://192.168.1.64:5000/api/subjects/${classToFetch}`
+        );
+        const data: Subject[] = await response.json();
+        setSubjects(data);
+      } catch (error) {
+        console.error("Error fetching subjects: ", error);
+        setError("Error fetching subjects. Please try again later.");
+      }
+      setLoading(false);
+    };
+
+    fetchSubjects();
+  }, [classToFetch]);
+
   const handleSubjectSelection = (itemValue: string) => {
     setSelectedSubject(itemValue);
   };
-
-  const subjects: string[] = [
-    "Choose a Subject",
-    "Math",
-    "Science",
-    "English",
-    "History",
-    "Art",
-    "Physics",
-    "Biology",
-    "Chemistry",
-  ];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -54,21 +72,40 @@ const YearlyPlanScreen: React.FC<Props> = ({ navigation }) => {
       </View>
       <ScrollView>
         <Text style={styles.title}>Choose a Subject</Text>
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={selectedSubject}
-            onValueChange={(itemValue) => handleSubjectSelection(itemValue)}
-            style={styles.picker}
-          >
-            {subjects.map((subject, index) => (
-              <Picker.Item label={subject} value={subject} key={index} />
-            ))}
-          </Picker>
-        </View>
-        {selectedSubject && (
+
+        {loading ? (
+          <Text>Loading subjects...</Text>
+        ) : error ? (
+          <Text style={styles.errorText}>{error}</Text>
+        ) : (
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={selectedSubject}
+              onValueChange={handleSubjectSelection}
+              style={styles.picker}
+            >
+              <Picker.Item label="Select a subject" value="" />
+
+              {subjects.length === 0 ? (
+                <Picker.Item label="No subjects available" value="" />
+              ) : (
+                subjects.map((subject, index) => (
+                  <Picker.Item
+                    label={subject.subject_name}
+                    value={subject.id}
+                    key={index}
+                  />
+                ))
+              )}
+            </Picker>
+          </View>
+        )}
+
+        {/* Display courses for the selected subject */}
+        {selectedSubject && !loading && !error && courseData[selectedSubject] && (
           <View style={styles.courseListContainer}>
             <Text style={styles.subtitle}>Courses for {selectedSubject}</Text>
-            {courseData[selectedSubject]?.yearlyPlan.map((item, index) => (
+            {courseData[selectedSubject]?.yearlyPlan?.map((item, index) => (
               <View key={index} style={styles.courseItem}>
                 <Text style={styles.courseName}>{item.task}</Text>
                 {item.completed ? (
@@ -142,6 +179,11 @@ const styles = StyleSheet.create({
     fontSize: FontSize.medium,
     color: Colors.darkText,
   },
+  errorText: {
+    color: "red",
+    fontSize: FontSize.medium,
+    textAlign: "center",
+  },
 });
 
-export default YearlyPlanScreen;
+export default CourseProgressScreen;

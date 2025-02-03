@@ -29,7 +29,7 @@ export type RootStackParamList = {
   CallScreen: undefined;
   TCallScreen: undefined;
   ecaScreen: undefined;
-  CourseProgressScreen: undefined;
+  CourseProgressScreen: { teacherClass: string, childclass: number };
   ReportCardScreen: undefined;
 };
 

@@ -10,6 +10,8 @@ const {updateAttendance, getAttendance} = require("../config/Attendance");
 const {updateActivity, getActivity} = require("../config/Activity");
 const {addRoutine, loadRoutine} = require("../config/addRoutine");
 const {sendMessage, getMessages, getUnreadCount, markMessagesAsRead} = require("../config/Message");
+const {getSubjects} = require("../config/Subjects");
+
 
 const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() });
@@ -50,5 +52,7 @@ router.post("/api/sendmessage/:senderid/:receiverid", (req, res) => sendMessage(
 router.get("/api/messages/:id1/:id2", (req, res) => getMessages(req, res, db));
 router.get("/api/unreadcount/:id1/:id2", (req, res) => getUnreadCount(req, res, db));
 router.put("/api/markasread/:id1/:id2", (req, res) => markMessagesAsRead(req, res, db));
+
+router.get("/api/subjects/:classToFetch", (req, res) => getSubjects(req, res, db));
 
 module.exports = router;
