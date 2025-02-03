@@ -1,6 +1,6 @@
 # EduApp
 
-EduApp is an educational platform designed to streamline communication between teachers and parents, track student activities,
+EduApp is a school app  designed to streamline communication between teachers and parents, track student activities,
 and manage co-curricular events. It provides a seamless interface to monitor students' attendance, participation, and achievements while facilitating interactions within a school community.
 
 ## Features
