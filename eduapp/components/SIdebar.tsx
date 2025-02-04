@@ -54,10 +54,10 @@ const Sidebar: React.FC<SidebarProps> = ({
     setClassRoutineOpen(!ClassRoutineOpen);
   };
 
-  const toggleYearlyPlan = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setYearlyPlanOpen(!yearlyPlanOpen);
-  };
+  // const toggleYearlyPlan = () => {
+  //   LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+  //   setYearlyPlanOpen(!yearlyPlanOpen);
+  // };
 
   const toggleMonthlyPlan = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -83,9 +83,6 @@ const Sidebar: React.FC<SidebarProps> = ({
     navigation.navigate("ClassRoutineScreen", { teacherClass, childclass });
   };
 
-  const handleYearlyPlanPress = () => {
-    navigation.navigate("YearlyPlanScreen");
-  };
 
   const handleCourseProgressPress = () => {
     navigation.navigate("CourseProgressScreen" , { teacherClass, childclass });
@@ -160,12 +157,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               >
                 <Text style={styles.subMenuItemText}>Class Routine</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.subMenuItem}
-                onPress={handleYearlyPlanPress}
-              >
-                <Text style={styles.subMenuItemText}>Yearly Plan</Text>
-              </TouchableOpacity>
+              
               <TouchableOpacity
                 style={styles.subMenuItem}
                 onPress={handleCourseProgressPress}
@@ -259,6 +251,7 @@ const styles = StyleSheet.create({
     left: 0,
     zIndex: 1,
     width: "100%",
+    height: "100%",
     paddingHorizontal: 20,
     paddingTop: 50,
     paddingBottom: 20,
@@ -269,7 +262,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5,
+    elevation: 50,
   },
   closeButton: {
     alignSelf: "flex-end",

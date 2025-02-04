@@ -6,12 +6,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
-import FontSize from "../constants/FontSize";
-import { courseData, CourseData } from "../data/yearlydata";
 import Colors from "../constants/Colors";
+import FontSize from "../constants/FontSize";
 import Font from "../constants/Font";
 
 type Props = {
@@ -24,24 +24,32 @@ interface Subject {
   subject_name: string;
 }
 
+interface Chapter {
+  id: number;
+  chapter_name: string;
+  status: string;
+}
+
 const CourseProgressScreen: React.FC<Props> = ({ navigation, route }) => {
   const { teacherClass } = route.params;
   const { childclass } = route.params;
   const classToFetch = teacherClass || childclass;
-
   const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [selectedSubject, setSelectedSubject] = useState<string>(""); // Initialize with an empty string
-  const [loading, setLoading] = useState<boolean>(false);
+  const [selectedSubject, setSelectedSubject] = useState<string>("");
+  const [chapters, setChapters] = useState<Chapter[]>([]);
+  const [loadingSubjects, setLoadingSubjects] = useState<boolean>(false);
+  const [loadingChapters, setLoadingChapters] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
+  // Fetch subjects based on class
   useEffect(() => {
-    if (!teacherClass && !childclass) {
+    if (!classToFetch) {
       setError("Class not found.");
       return;
     }
 
     const fetchSubjects = async () => {
-      setLoading(true);
+      setLoadingSubjects(true);
       try {
         const response = await fetch(
           `http://192.168.1.64:5000/api/subjects/${classToFetch}`
@@ -49,51 +57,105 @@ const CourseProgressScreen: React.FC<Props> = ({ navigation, route }) => {
         const data: Subject[] = await response.json();
         setSubjects(data);
       } catch (error) {
-        console.error("Error fetching subjects: ", error);
+        console.error("Error fetching subjects:", error);
         setError("Error fetching subjects. Please try again later.");
       }
-      setLoading(false);
+      setLoadingSubjects(false);
     };
 
     fetchSubjects();
   }, [classToFetch]);
 
-  const handleSubjectSelection = (itemValue: string) => {
-    setSelectedSubject(itemValue);
+  // Fetch chapters when a subject is selected
+  useEffect(() => {
+    if (!selectedSubject) return;
+
+    const fetchChapters = async () => {
+      setLoadingChapters(true);
+      try {
+        const response = await fetch(
+          `http://192.168.1.64:5000/api/chapters/${selectedSubject}`
+        );
+        const data: Chapter[] = await response.json();
+        setChapters(data);
+      } catch (error) {
+        console.error("Error fetching chapters:", error);
+        setError("Error fetching chapters.");
+      }
+      setLoadingChapters(false);
+    };
+
+    fetchChapters();
+  }, [selectedSubject]);
+
+  const updateChapterStatus = async (chapterId: number, newStatus: string) => {
+    if (!teacherClass) {
+      alert("Only teachers can update chapter status.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://192.168.1.64:5000/api/chapters/${chapterId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus, teacherClass }), // Only allow if teacherClass exists
+        }
+      );
+      const result = await response.json();
+
+      if (response.ok) {
+        setChapters((prevChapters) =>
+          prevChapters.map((chapter) =>
+            chapter.id === chapterId
+              ? { ...chapter, status: newStatus }
+              : chapter
+          )
+        );
+      } else {
+        alert(result.error);
+      }
+    } catch (error) {
+      console.error("Error updating chapter status:", error);
+      alert("Failed to update chapter status.");
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back" size={30} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Course Progress</Text>
       </View>
+
       <ScrollView>
+        {/* Subject Picker */}
         <Text style={styles.title}>Choose a Subject</Text>
 
-        {loading ? (
-          <Text>Loading subjects...</Text>
+        {loadingSubjects ? (
+          <ActivityIndicator size="large" color={Colors.primary} />
         ) : error ? (
           <Text style={styles.errorText}>{error}</Text>
         ) : (
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={selectedSubject}
-              onValueChange={handleSubjectSelection}
+              onValueChange={(itemValue) => setSelectedSubject(itemValue)}
               style={styles.picker}
             >
-              <Picker.Item label="Select a subject" value="" />
-
+             {!selectedSubject && <Picker.Item label="Select a subject" value="placeholder"  enabled={true}/>}
               {subjects.length === 0 ? (
                 <Picker.Item label="No subjects available" value="" />
               ) : (
-                subjects.map((subject, index) => (
+                subjects.map((subject) => (
                   <Picker.Item
                     label={subject.subject_name}
                     value={subject.id}
-                    key={index}
+                    key={subject.id}
                   />
                 ))
               )}
@@ -101,27 +163,73 @@ const CourseProgressScreen: React.FC<Props> = ({ navigation, route }) => {
           </View>
         )}
 
-        {/* Display courses for the selected subject */}
-        {selectedSubject && !loading && !error && courseData[selectedSubject] && (
-          <View style={styles.courseListContainer}>
-            <Text style={styles.subtitle}>Courses for {selectedSubject}</Text>
-            {courseData[selectedSubject]?.yearlyPlan?.map((item, index) => (
-              <View key={index} style={styles.courseItem}>
-                <Text style={styles.courseName}>{item.task}</Text>
-                {item.completed ? (
-                  <Ionicons name="checkmark-done" size={24} color="green" />
-                ) : (
-                  <Ionicons name="hourglass" size={24} color="orange" />
-                )}
-              </View>
-            ))}
-          </View>
+        {/* Display Chapters */}
+        {selectedSubject && (
+          <>
+            <Text style={styles.title}>
+              {subjects.find(subject => subject.id === selectedSubject)
+                ?.subject_name === "नेपाली"
+                ? "पाठहरु"
+                : "Chapters"}
+            </Text>
+
+            {loadingChapters ? (
+              <ActivityIndicator size="large" color={Colors.primary} />
+            ) : error ? (
+              <Text style={styles.errorText}>{error}</Text>
+            ) : chapters.length === 0 ? (
+              <Text style={styles.notAvailable}>Not available at this momment !!!!</Text>
+            ) : (
+              chapters.map((chapter) => (
+                <View key={chapter.id} style={styles.chapterItem}>
+                  <Text style={styles.chapterName}>{chapter.chapter_name}</Text>
+                  {teacherClass ? (
+                    <TouchableOpacity
+                      onPress={() =>
+                        updateChapterStatus(
+                          chapter.id,
+                          chapter.status === "Complete" ? "Pending" : "Complete"
+                        )
+                      }
+                    >
+                      <Ionicons
+                        name={
+                          chapter.status === "Complete"
+                            ? "checkmark-done"
+                            : "hourglass"
+                        }
+                        size={24}
+                        color={
+                          chapter.status === "Complete" ? "green" : "orange"
+                        }
+                      />
+                    </TouchableOpacity>
+                  ) : (
+                    <Ionicons
+                      name={
+                        chapter.status === "Complete"
+                          ? "checkmark-done"
+                          : "hourglass"
+                      }
+                      size={24}
+                      color={chapter.status === "Complete" ? "green" : "orange"}
+                    />
+                  )}
+
+                </View>
+              ))
+            )}
+          </>
+          
         )}
+        
+
       </ScrollView>
     </SafeAreaView>
   );
 };
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -157,16 +265,7 @@ const styles = StyleSheet.create({
     fontFamily: Font["poppins-regular"],
     color: Colors.darkText,
   },
-  courseListContainer: {
-    marginTop: 20,
-  },
-  subtitle: {
-    fontSize: FontSize.medium,
-    fontFamily: Font["poppins-bold"],
-    marginBottom: 10,
-    color: Colors.primary,
-  },
-  courseItem: {
+  chapterItem: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -174,7 +273,7 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.lightPrimary,
     paddingVertical: 10,
   },
-  courseName: {
+  chapterName: {
     fontFamily: Font["poppins-regular"],
     fontSize: FontSize.medium,
     color: Colors.darkText,
@@ -184,6 +283,14 @@ const styles = StyleSheet.create({
     fontSize: FontSize.medium,
     textAlign: "center",
   },
+  notAvailable: {
+    textAlign: "center",
+    fontSize: FontSize.medium,
+    color: "red",
+    fontFamily: Font["poppins-regular"],
+    marginTop: 5,
+  },
+  
 });
 
 export default CourseProgressScreen;

@@ -10,7 +10,7 @@ const {updateAttendance, getAttendance} = require("../config/Attendance");
 const {updateActivity, getActivity} = require("../config/Activity");
 const {addRoutine, loadRoutine} = require("../config/addRoutine");
 const {sendMessage, getMessages, getUnreadCount, markMessagesAsRead} = require("../config/Message");
-const {getSubjects} = require("../config/Subjects");
+const {getSubjects, getchapters, updateStatus} = require("../config/Subjects");
 
 
 const multer = require("multer");
@@ -54,5 +54,7 @@ router.get("/api/unreadcount/:id1/:id2", (req, res) => getUnreadCount(req, res, 
 router.put("/api/markasread/:id1/:id2", (req, res) => markMessagesAsRead(req, res, db));
 
 router.get("/api/subjects/:classToFetch", (req, res) => getSubjects(req, res, db));
+router.get("/api/chapters/:subjectToFetch", (req, res) => getchapters(req, res, db));
+router.put("/api/chapters/:id", (req, res) => updateStatus(req, res, db));
 
 module.exports = router;
