@@ -54,10 +54,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     setClassRoutineOpen(!ClassRoutineOpen);
   };
 
-  // const toggleYearlyPlan = () => {
-  //   LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-  //   setYearlyPlanOpen(!yearlyPlanOpen);
-  // };
+ 
 
   const toggleMonthlyPlan = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);

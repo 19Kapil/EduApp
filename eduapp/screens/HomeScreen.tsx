@@ -8,14 +8,14 @@ import {
   TouchableWithoutFeedback,
   StyleSheet,
   Image,
-  FlatList,
   TextInput,
   Dimensions,
   Keyboard,
+  ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
- //import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types";
 import PBottomNavigator from "../components/PBottomNavigator";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -23,10 +23,11 @@ import Sidebar from "../components/SIdebar";
 import Font from "../constants/Font";
 import Colors from "../constants/Colors";
 
-type Props ={
-  navigation:NativeStackNavigationProp<RootStackParamList>;
+
+type Props = {
+  navigation: NativeStackNavigationProp<RootStackParamList>;
   route: any;
-}
+};
 
 interface Post {
   id: string;
@@ -44,6 +45,8 @@ const HomeScreen: React.FC<Props> = ({ navigation, route }) => {
   const [loading, setLoading] = useState(false); // For refresh animation
   const animatedValue = useRef(new Animated.Value(0)).current;
   const rotationValue = useRef(new Animated.Value(0)).current;
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const [isModalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     Animated.timing(animatedValue, {
@@ -71,7 +74,9 @@ const HomeScreen: React.FC<Props> = ({ navigation, route }) => {
     setLoading(true);
     startLoadingAnimation();
     try {
-      const response = await axios.get<Post[]>("http://192.168.1.64:5000/api/posts");
+      const response = await axios.get<Post[]>(
+        "http://192.168.1.64:5000/api/posts"
+      );
       setPosts(response.data);
       setError(null);
     } catch {
@@ -100,26 +105,57 @@ const HomeScreen: React.FC<Props> = ({ navigation, route }) => {
     outputRange: ["0deg", "360deg"],
   });
 
-  const renderPosts = () => (
-    <FlatList
-      data={posts}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => (
-        <View style={styles.post}>
-          <Image source={{ uri: `data:image/png;base64,${item.image}` }} style={styles.postImage} />
-          <Text style={styles.postDescription}>{item.description}</Text>
-        </View>
-      )}
-      ListEmptyComponent={
-        <Text style={styles.noPostsText}>{error || "No posts available."}</Text>
-      }
-    />
-  );
+  const renderPosts = () => {
+    if (loading)
+      return <ActivityIndicator size="large" color={Colors.primary} />;
+    if (error) return <Text style={styles.errorText}>{error}</Text>;
+    if (posts.length === 0)
+      return <Text style={styles.noPostsText}>No posts available.</Text>;
+
+    return (
+      <ScrollView>
+        {posts.map((post) => (
+          <TouchableOpacity
+            key={post.id}
+            onPress={() => navigation.navigate("PostDetailScreen", { post })}
+          >
+            <View style={styles.post}>
+              {/* Post Image */}
+              <Image
+                source={{ uri: `data:image/jpg;base64,${post.image}` }}
+                style={styles.postImage}
+              />
+
+              <View style={styles.postTextContainer}>
+                <Text numberOfLines={4}>{post.description}</Text>
+
+                {/* Ellipsis Button */}
+                <TouchableOpacity
+                  onPress={() => {
+                    setSelectedPostId(post.id);
+                    setModalVisible(true);
+                  }}
+                ></TouchableOpacity>
+              </View>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    );
+  };
 
   return (
-    <TouchableWithoutFeedback onPress={handleTouch} onPressOut={Keyboard.dismiss}>
+    <TouchableWithoutFeedback
+      onPress={handleTouch}
+      onPressOut={Keyboard.dismiss}
+    >
       <SafeAreaView style={styles.container}>
-        <Animated.View style={[styles.sidebar, { transform: [{ translateX: sidebarTranslateX }] }]}>
+        <Animated.View
+          style={[
+            styles.sidebar,
+            { transform: [{ translateX: sidebarTranslateX }] },
+          ]}
+        >
           {isSidebarOpen && (
             <Sidebar
               toggleSidebar={() => setSidebarOpen(!isSidebarOpen)}
@@ -168,7 +204,11 @@ const HomeScreen: React.FC<Props> = ({ navigation, route }) => {
 
         {renderPosts()}
 
-        <PBottomNavigator userid={userid} childclass={childclass} navigation={navigation} />
+        <PBottomNavigator
+          userid={userid}
+          childclass={childclass}
+          navigation={navigation}
+        />
       </SafeAreaView>
     </TouchableWithoutFeedback>
   );
@@ -182,7 +222,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
   },
-  headerText: { fontSize: 24, fontFamily: Font["poppins-bold"], color: Colors.primary },
+  headerText: {
+    fontSize: 24,
+    fontFamily: Font["poppins-bold"],
+    color: Colors.primary,
+  },
   sidebar: {
     position: "absolute",
     width: "80%",
@@ -213,6 +257,11 @@ const styles = StyleSheet.create({
   },
   postImage: { width: "100%", height: 200, borderRadius: 8 },
   postDescription: { marginTop: 10, fontSize: 14, color: "#333" },
+  postTextContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 10,
+  },
   noPostsText: { textAlign: "center", margin: 20, color: Colors.text },
   loaderContainer: {
     position: "absolute",
@@ -229,6 +278,7 @@ const styles = StyleSheet.create({
     borderTopColor: "transparent",
     backgroundColor: "transparent",
   },
+  errorText: { textAlign: "center", color: "red", margin: 10 },
 });
 
 export default HomeScreen;

@@ -31,6 +31,8 @@ export type RootStackParamList = {
   ecaScreen: undefined;
   CourseProgressScreen: { teacherClass: string, childclass: number };
   ReportCardScreen: undefined;
+  PostDetailScreen: { post:any };
+
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =

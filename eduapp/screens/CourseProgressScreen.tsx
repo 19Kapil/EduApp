@@ -178,7 +178,7 @@ const CourseProgressScreen: React.FC<Props> = ({ navigation, route }) => {
             ) : error ? (
               <Text style={styles.errorText}>{error}</Text>
             ) : chapters.length === 0 ? (
-              <Text style={styles.notAvailable}>Not available at this momment !!!!</Text>
+              <Text style={styles.notAvailable}>Not available at this momment !!!</Text>
             ) : (
               chapters.map((chapter) => (
                 <View key={chapter.id} style={styles.chapterItem}>
@@ -222,8 +222,6 @@ const CourseProgressScreen: React.FC<Props> = ({ navigation, route }) => {
           </>
           
         )}
-        
-
       </ScrollView>
     </SafeAreaView>
   );
