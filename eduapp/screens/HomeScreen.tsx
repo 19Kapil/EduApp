@@ -163,6 +163,7 @@ const HomeScreen: React.FC<Props> = ({ navigation, route }) => {
               userid={userid}
               teacherClass=""
               childclass={childclass}
+              
             />
           )}
         </Animated.View>
@@ -215,7 +216,7 @@ const HomeScreen: React.FC<Props> = ({ navigation, route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  container: { flex: 1, backgroundColor: "#fff",paddingBottom: 55 },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",

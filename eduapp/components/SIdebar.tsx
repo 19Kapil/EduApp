@@ -22,6 +22,7 @@ type SidebarProps = {
   userid: string;
   teacherClass: string;
   childclass: number;
+
 };
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -211,7 +212,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               onPress={handleAddPress}
             >
               <Ionicons name="person-add" size={20} color={Colors.primary} />
-              <Text style={styles.subMenuItemText}>Add Child</Text>
+              <Text style={styles.subMenuItemText}>Add Child </Text>
             </TouchableOpacity>
           </View>
         )}

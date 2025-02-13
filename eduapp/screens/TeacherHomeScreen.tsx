@@ -223,12 +223,13 @@ const TeacherHomeScreen: React.FC<Props> = ({ navigation, route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", marginTop: 30 },
+  container: { flex: 2, backgroundColor: "#ffffe6",paddingBottom: 55 },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     padding: 20,
+    marginTop: 20,
   },
   welcomeText: { fontSize: 24, color: Colors.primary },
   sidebar: {
